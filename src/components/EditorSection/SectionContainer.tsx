@@ -1,6 +1,6 @@
 import { ElIcon } from 'element-plus'
 import { ArrowUp, ArrowDown } from '@element-plus/icons-vue'
-import type { ResumeSection } from '../stores/resume'
+import type { ResumeSection } from '../../stores/resume'
 import './SectionContainer.css'
 
 interface SectionContainerProps {

@@ -1,6 +1,6 @@
 import { ElInput, ElButton, ElRow, ElCol } from 'element-plus'
-import { useResumeStore } from '../stores/resume'
-import '../components/SectionCommon.css'
+import { useResumeStore } from '../../stores/resume'
+import './SectionCommon.css'
 
 export default function WorkExperienceSection() {
   const resumeStore = useResumeStore()

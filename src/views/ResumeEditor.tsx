@@ -5,13 +5,14 @@ import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 
 // 导入各个区块组件
-import SectionContainer from '../components/SectionContainer'
-import BasicInfoSection from '../components/BasicInfoSection'
-import SkillsSection from '../components/SkillsSection'
-import WorkExperienceSection from '../components/WorkExperienceSection'
-import ProjectExperienceSection from '../components/ProjectExperienceSection'
-import EducationSection from '../components/EducationSection'
-import PersonalSummarySection from '../components/PersonalSummarySection'
+import SectionContainer from '../components/EditorSection/SectionContainer'
+import BasicInfoSection from '../components/EditorSection/BasicInfoSection'
+import SkillsSection from '../components/EditorSection/SkillsSection'
+import WorkExperienceSection from '../components/EditorSection/WorkExperienceSection'
+import ProjectExperienceSection from '../components/EditorSection/ProjectExperienceSection'
+import EducationSection from '../components/EditorSection/EducationSection'
+import PersonalSummarySection from '../components/EditorSection/PersonalSummarySection'
+import ResumePreview from '../components/PreviewSection/ResumePreview'
 
 import './ResumeEditor.css'
 
@@ -158,116 +159,7 @@ export default function ResumeEditor() {
           </div>
           
           <div class="preview-container">
-            <div class="preview-content">
-              {/* 基本信息预览 */}
-              <div class="preview-basic-info">
-                <h1 class="name">{resumeStore.resumeData.basicInfo.name || '姓名'}</h1>
-                <div class="contact-info">
-                  <span>{resumeStore.resumeData.basicInfo.phone}</span>
-                  <span>{resumeStore.resumeData.basicInfo.email}</span>
-                  <span>{resumeStore.resumeData.basicInfo.location}</span>
-                </div>
-                {resumeStore.resumeData.basicInfo.jobTarget && (
-                  <div class="job-intention">
-                    求职意向：{resumeStore.resumeData.basicInfo.jobTarget}
-                  </div>
-                )}
-              </div>
-
-              {/* 专业技能预览 */}
-              {resumeStore.resumeData.sections.find(s => s.type === 'skills')?.expanded && 
-               resumeStore.resumeData.skills.technical.length > 0 && (
-                <div class="preview-section">
-                  <h2>专业技能</h2>
-                  <div class="skills-content">
-                    {resumeStore.resumeData.skills.technical.map((skill, index) => (
-                      <p key={index}>{skill}</p>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 工作经历预览 */}
-              {resumeStore.resumeData.sections.find(s => s.type === 'work')?.expanded && 
-               resumeStore.resumeData.workExperiences.length > 0 && (
-                <div class="preview-section">
-                  <h2>工作经历</h2>
-                  {resumeStore.resumeData.workExperiences.map((work) => (
-                    <div key={work.id} class="experience-item-preview">
-                      <div class="experience-header-preview">
-                        <h3>{work.company}</h3>
-                        <span class="duration">{work.startDate} - {work.endDate}</span>
-                      </div>
-                      <div class="position-info">
-                        <span class="position">{work.position}</span>
-                        {work.department && <span class="department"> | {work.department}</span>}
-                        {work.location && <span class="location"> | {work.location}</span>}
-                      </div>
-                      {work.description && (
-                        <div class="description">{work.description}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* 项目经历预览 */}
-              {resumeStore.resumeData.sections.find(s => s.type === 'project')?.expanded && 
-               resumeStore.resumeData.projectExperiences.length > 0 && (
-                <div class="preview-section">
-                  <h2>项目经历</h2>
-                  {resumeStore.resumeData.projectExperiences.map((project) => (
-                    <div key={project.id} class="experience-item-preview">
-                      <div class="experience-header-preview">
-                        <h3>{project.name}</h3>
-                        <span class="duration">{project.startDate} - {project.endDate}</span>
-                      </div>
-                      <div class="position-info">
-                        <span class="position">{project.role}</span>
-                        {project.department && <span class="department"> | {project.department}</span>}
-                        {project.location && <span class="location"> | {project.location}</span>}
-                      </div>
-                      {project.description && (
-                        <div class="description">{project.description}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* 教育经历预览 */}
-              {resumeStore.resumeData.sections.find(s => s.type === 'education')?.expanded && 
-               resumeStore.resumeData.educations.length > 0 && (
-                <div class="preview-section">
-                  <h2>教育经历</h2>
-                  {resumeStore.resumeData.educations.map((education) => (
-                    <div key={education.id} class="experience-item-preview">
-                      <div class="experience-header-preview">
-                        <h3>{education.school}</h3>
-                        <span class="duration">{education.startDate} - {education.endDate}</span>
-                      </div>
-                      <div class="position-info">
-                        <span class="position">{education.major}</span>
-                        <span class="degree"> | {education.degree}</span>
-                        {education.gpa && <span class="gpa"> | GPA: {education.gpa}</span>}
-                      </div>
-                      {education.description && (
-                        <div class="description">{education.description}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* 个人总结预览 */}
-              {resumeStore.resumeData.sections.find(s => s.type === 'summary')?.expanded && 
-               resumeStore.resumeData.personalSummary.content && (
-                <div class="preview-section">
-                  <h2>个人总结</h2>
-                  <div class="summary-content">{resumeStore.resumeData.personalSummary.content}</div>
-                </div>
-              )}
-            </div>
+            <ResumePreview />
           </div>
         </div>
       </div>
