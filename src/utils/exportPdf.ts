@@ -1,28 +1,29 @@
 import pdfMake from 'pdfmake/build/pdfmake'
 import type { TDocumentDefinitions, TFontDictionary } from 'pdfmake/interfaces'
 import type { ResumeData } from '../stores/resume'
-import { 
-  getSelectedFontConfig, 
-  type FontConfig 
-} from './fontManager'
 
-// 字体加载状态
-let fontsLoaded = false
-let currentFontConfig: FontConfig | null = null
-
-// 设置默认字体（不使用自定义字体）
-const setupDefaultFonts = (): void => {
-  const fonts: TFontDictionary = {
-    Roboto: {
-      normal: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf',
-      bold: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf',
-      italics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Italic.ttf',
-      bolditalics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-MediumItalic.ttf'
+// 简化字体配置，暂时不加载复杂字体避免内存问题
+const setupChineseFont = async (): Promise<void> => {
+  try {
+    console.log('配置字体支持...')
+    
+    // 暂时使用默认Roboto字体，避免大字体文件导致的内存问题
+    // 后续可以优化为使用轻量级的中文字体子集
+    pdfMake.fonts = {
+      Roboto: {
+        normal: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-Bold.ttf',
+        bold: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-ExtraLight.ttf',
+        italics: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-Heavy.ttf',
+        bolditalics: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-ExtraLight.ttf'
+      }
     }
+    
+    console.log('字体配置完成 (使用Roboto字体)')
+    
+  } catch (error) {
+    console.error('字体配置失败:', error)
+    // 即使出错也不抛出异常，确保PDF可以正常生成
   }
-  
-  pdfMake.fonts = fonts
-  console.log('使用默认Roboto字体配置')
 }
 
 // 文本处理函数
@@ -98,14 +99,11 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
       margin: [0, 0, 0, 10]
     })
 
-    skills.technical.forEach(skill => {
-      content.push({
-        text: `• ${formatText(skill)}`,
-        margin: [0, 0, 0, 5]
-      })
+    const skillsText = skills.technical.map(skill => `• ${formatText(skill)}`).join('\n')
+    content.push({
+      text: skillsText,
+      margin: [0, 0, 0, 15]
     })
-    
-    content.push({ text: '', margin: [0, 0, 0, 15] })
   }
 
   // ====== 工作经历 ======
@@ -114,27 +112,39 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
     content.push({
       text: 'WORK EXPERIENCE',
       style: 'sectionHeader',
-      margin: [0, 0, 0, 10]
+      margin: [0, 0, 0, 15]
     })
 
-    workExperiences.forEach(work => {
+    workExperiences.forEach((work, index) => {
+      // 公司和职位
       content.push({
-        text: `${formatText(work.position)} | ${formatText(work.company)}`,
+        text: `${formatText(work.company)} | ${formatText(work.position)}`,
         style: 'subHeader',
         margin: [0, 0, 0, 5]
       })
 
+      // 时间
+      const timeRange = `${work.startDate} - ${work.endDate || '至今'}`
       content.push({
-        text: `${work.startDate} - ${work.endDate || 'Present'}`,
+        text: timeRange,
         style: 'dateText',
-        margin: [0, 0, 0, 5]
+        margin: [0, 0, 0, 8]
       })
 
+      // 工作描述
       if (work.description) {
-        content.push({
-          text: formatText(work.description),
-          margin: [0, 0, 0, 15]
+        const descriptions = work.description.split('\n').filter(Boolean)
+        descriptions.forEach((desc, i) => {
+          content.push({
+            text: `${i + 1}. ${formatText(desc)}`,
+            margin: [0, 0, 0, 3]
+          })
         })
+      }
+
+      // 添加间距（除了最后一项）
+      if (index < workExperiences.length - 1) {
+        content.push({ text: '', margin: [0, 0, 0, 10] })
       }
     })
   }
@@ -145,35 +155,35 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
     content.push({
       text: 'PROJECT EXPERIENCE',
       style: 'sectionHeader',
-      margin: [0, 0, 0, 10]
+      margin: [0, 0, 0, 15]
     })
 
-    projectExperiences.forEach(project => {
+    projectExperiences.forEach((project, index) => {
       content.push({
-        text: formatText(project.name),
+        text: `${formatText(project.name)} | ${formatText(project.role)}`,
         style: 'subHeader',
         margin: [0, 0, 0, 5]
       })
 
+      const timeRange = `${project.startDate} - ${project.endDate || '至今'}`
       content.push({
-        text: `${project.startDate} - ${project.endDate || 'Present'}`,
+        text: timeRange,
         style: 'dateText',
-        margin: [0, 0, 0, 5]
+        margin: [0, 0, 0, 8]
       })
 
-      if (project.role) {
-        content.push({
-          text: `Role: ${formatText(project.role)}`,
-          style: 'roleText',
-          margin: [0, 0, 0, 5]
+      if (project.description) {
+        const descriptions = project.description.split('\n').filter(Boolean)
+        descriptions.forEach((desc, i) => {
+          content.push({
+            text: `${i + 1}. ${formatText(desc)}`,
+            margin: [0, 0, 0, 3]
+          })
         })
       }
 
-      if (project.description) {
-        content.push({
-          text: formatText(project.description),
-          margin: [0, 0, 0, 15]
-        })
+      if (index < projectExperiences.length - 1) {
+        content.push({ text: '', margin: [0, 0, 0, 10] })
       }
     })
   }
@@ -184,20 +194,21 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
     content.push({
       text: 'EDUCATION',
       style: 'sectionHeader',
-      margin: [0, 0, 0, 10]
+      margin: [0, 0, 0, 15]
     })
 
-    educations.forEach(edu => {
+    educations.forEach((edu, index) => {
       content.push({
-        text: `${formatText(edu.degree)} | ${formatText(edu.school)}`,
+        text: `${formatText(edu.school)} | ${formatText(edu.major)}`,
         style: 'subHeader',
         margin: [0, 0, 0, 5]
       })
 
+      const timeRange = `${edu.startDate} - ${edu.endDate || '至今'}`
       content.push({
-        text: `${edu.startDate} - ${edu.endDate || 'Present'}`,
+        text: timeRange,
         style: 'dateText',
-        margin: [0, 0, 0, 15]
+        margin: [0, 0, 0, index === educations.length - 1 ? 15 : 10]
       })
     })
   }
@@ -223,34 +234,40 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
       header: {
         fontSize: 24,
         bold: true,
-        color: '#333333'
+        color: '#333333',
+        font: 'Roboto'
       },
       sectionHeader: {
         fontSize: 16,
         bold: true,
         color: '#333333',
-        decoration: 'underline'
+        decoration: 'underline',
+        font: 'Roboto'
       },
       subHeader: {
         fontSize: 12,
         bold: true,
-        color: '#333333'
+        color: '#333333',
+        font: 'Roboto'
       },
       dateText: {
         fontSize: 10,
         color: '#666666',
-        italics: true
+        italics: true,
+        font: 'Roboto'
       },
       roleText: {
         fontSize: 10,
         color: '#666666',
-        italics: true
+        italics: true,
+        font: 'Roboto'
       }
     },
     defaultStyle: {
       fontSize: 11,
       color: '#333333',
-      lineHeight: 1.3
+      lineHeight: 1.3,
+      font: 'Roboto'
     },
     pageSize: 'A4',
     pageMargins: [40, 60, 40, 60] as [number, number, number, number]
@@ -263,16 +280,19 @@ export const exportToPDFDirect = async (resumeData: ResumeData): Promise<any> =>
   throw new Error('请使用 exportHighQualityPDF 函数')
 }
 
-// 高质量PDF导出（暂时使用默认字体，避免复杂的字体加载问题）
+// 高质量PDF导出
 export const exportHighQualityPDF = async (resumeData: ResumeData): Promise<void> => {
   try {
     console.log('开始生成PDF...')
+    console.log('简历数据:', resumeData)
     
-    // 暂时使用默认字体，避免字体加载问题
-    setupDefaultFonts()
+    // 设置中文字体
+    await setupChineseFont()
     
     // 创建文档定义
     const docDefinition = createDocumentDefinition(resumeData)
+    console.log('PDF文档定义:', docDefinition)
+    
     const fileName = `${formatText(resumeData.basicInfo.name) || 'resume'}_resume.pdf`
     
     console.log('正在生成PDF文件...')
@@ -284,7 +304,6 @@ export const exportHighQualityPDF = async (resumeData: ResumeData): Promise<void
     
   } catch (error) {
     console.error('PDF导出失败:', error)
-    alert('PDF导出失败，请重试')
-    throw error // 重新抛出错误，确保调用者知道失败了
+    throw error
   }
 }

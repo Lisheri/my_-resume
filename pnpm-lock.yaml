@@ -8,6 +8,9 @@ dependencies:
   '@element-plus/icons-vue':
     specifier: ^2.1.0
     version: 2.3.1(vue@3.5.17)
+  '@fontsource/noto-sans-sc':
+    specifier: ^5.2.6
+    version: 5.2.6
   element-plus:
     specifier: ^2.3.14
     version: 2.10.4(vue@3.5.17)
@@ -924,6 +927,10 @@ packages:
 
   /@foliojs-fork/restructure@2.0.2:
     resolution: {integrity: sha512-59SgoZ3EXbkfSX7b63tsou/SDGzwUEK6MuB5sKqgVK1/XE0fxmpsOb9DQI8LXW3KfGnAjImCGhhEb7uPPAUVNA==}
+    dev: false
+
+  /@fontsource/noto-sans-sc@5.2.6:
+    resolution: {integrity: sha512-hk0xVQ+mL/W0rXDhBhud2U5te/slsQKcaU+3Ni6ZxeFP1jJmcNmxHEZOG5DjLBOi0L//0R5Nwvn6ebTiZrwVZw==}
     dev: false
 
   /@isaacs/balanced-match@4.0.1:
