@@ -1,0 +1,106 @@
+.section-container {
+  margin-bottom: 12px;
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+  background: white;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.section-container:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e4e7ed;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.section-header:hover {
+  background: #f0f2f5;
+}
+
+.section-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drag-handle {
+  display: flex;
+  align-items: center;
+  color: #909399;
+  cursor: grab;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.drag-handle:hover {
+  background: #e4e7ed;
+  color: #606266;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.section-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.section-title-area {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  margin: 0;
+}
+
+.section-header-right {
+  display: flex;
+  align-items: center;
+}
+
+.expand-icon {
+  color: #909399;
+  transition: transform 0.3s ease;
+  font-size: 14px;
+}
+
+.expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.section-body {
+  background: white;
+}
+
+/* 拖拽时的样式 */
+.sortable-ghost {
+  opacity: 0.5;
+}
+
+.sortable-chosen {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.sortable-drag {
+  transform: rotate(5deg);
+} 
+
+.section-content {
+  overflow: hidden;
+  transition: all 0.3s ease;
+} 

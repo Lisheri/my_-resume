@@ -1,0 +1,128 @@
+.section-content {
+  padding: 20px;
+  background: white;
+}
+
+.form-row {
+  margin-bottom: 16px;
+}
+
+.form-item {
+  margin-bottom: 16px;
+}
+
+.form-item label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #303133;
+}
+
+.experience-item {
+  background: #f9f9f9;
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.experience-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e4e7ed;
+}
+
+.experience-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.add-button-container {
+  text-align: center;
+  margin-top: 20px;
+  padding: 20px;
+  border: 2px dashed #e4e7ed;
+  border-radius: 8px;
+  background: #fafbfc;
+}
+
+.skill-input-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.skill-input-group .el-input {
+  flex: 1;
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.skill-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 16px;
+  font-size: 12px;
+  color: #0369a1;
+}
+
+.tag-remove {
+  margin-left: 6px;
+  cursor: pointer;
+  color: #64748b;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.tag-remove:hover {
+  color: #ef4444;
+}
+
+/* 覆盖 Element Plus 默认样式 */
+.el-input__wrapper {
+  border-radius: 6px;
+}
+
+.el-button {
+  border-radius: 6px;
+}
+
+.el-select .el-input__wrapper {
+  border-radius: 6px;
+}
+
+.el-textarea__inner {
+  border-radius: 6px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .form-row .el-col {
+    margin-bottom: 16px;
+  }
+  
+  .skill-input-group {
+    flex-direction: column;
+  }
+  
+  .experience-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+} 

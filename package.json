@@ -1,0 +1,31 @@
+{
+  "name": "resume-editor",
+  "version": "1.0.0",
+  "description": "简历编写平台",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.1.0",
+    "element-plus": "^2.3.14",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
+    "md-editor-v3": "^5.0.0",
+    "pinia": "^2.1.6",
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.4",
+    "vuedraggable": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.14",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "@vitejs/plugin-vue-jsx": "^5.0.1",
+    "typescript": "^5.7.3",
+    "vite": "^7.0.4",
+    "vue-tsc": "^3.0.1"
+  }
+}
