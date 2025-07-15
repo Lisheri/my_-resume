@@ -7,16 +7,23 @@ export default function BasicInfoPreview() {
   return (
     <div class="preview-basic-info">
       <h1 class="name">{basicInfo.name || '姓名'}</h1>
+      
       <div class="contact-info">
-        <span>{basicInfo.phone}</span>
-        <span>{basicInfo.email}</span>
-        <span>{basicInfo.location}</span>
+        {basicInfo.phone && <span class="contact-item">📞 {basicInfo.phone}</span>}
+        {basicInfo.email && <span class="contact-item">📧 {basicInfo.email}</span>}
+        {basicInfo.location && <span class="contact-item">📍 {basicInfo.location}</span>}
       </div>
-      {basicInfo.jobTarget && (
-        <div class="job-intention">
-          求职意向：{basicInfo.jobTarget}
+      
+      {basicInfo.website && (
+        <div class="website-info">
+          🔗 {basicInfo.website}
         </div>
       )}
+      
+      <div class="status-info">
+        {basicInfo.workStatus && <span class="work-status">👤 {basicInfo.workStatus}</span>}
+        {basicInfo.jobTarget && <span class="job-target">🎯 {basicInfo.jobTarget}</span>}
+      </div>
     </div>
   )
 } 

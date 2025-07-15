@@ -1,8 +1,9 @@
 import { ElInput, ElButton, ElMessage } from 'element-plus'
 import { useResumeStore } from '../stores/resume'
-import { ref } from 'vue'
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
+import { ref, onMounted } from 'vue'
+import { exportHighQualityPDF } from '../utils/exportPdf'
+import { applyFontToPreview, initDefaultFont } from '../utils/fontLoader'
+import { getSelectedFont } from '../utils/fontManager'
 
 // 导入各个区块组件
 import SectionContainer from '../components/EditorSection/SectionContainer'
@@ -13,6 +14,7 @@ import ProjectExperienceSection from '../components/EditorSection/ProjectExperie
 import EducationSection from '../components/EditorSection/EducationSection'
 import PersonalSummarySection from '../components/EditorSection/PersonalSummarySection'
 import ResumePreview from '../components/PreviewSection/ResumePreview'
+import FontSelector from '../components/FontSelector.vue'
 
 import './ResumeEditor.css'
 
@@ -20,6 +22,7 @@ export default function ResumeEditor() {
   const resumeStore = useResumeStore()
   const isEditingFilename = ref(false)
   const tempFilename = ref(resumeStore.resumeData.filename)
+  const currentFont = ref<string>('')
 
   const toggleSection = (sectionId: string) => {
     resumeStore.toggleSectionExpanded(sectionId)
@@ -42,6 +45,26 @@ export default function ResumeEditor() {
     tempFilename.value = resumeStore.resumeData.filename
   }
 
+  const handleFontChange = async (fontConfig: any) => {
+    if (fontConfig) {
+      currentFont.value = fontConfig.displayName
+      // 应用字体到预览区域
+      await applyFontToPreview(fontConfig.name)
+    }
+  }
+
+  // 初始化字体
+  onMounted(async () => {
+    // 加载保存的字体设置
+    const selectedFont = getSelectedFont()
+    if (selectedFont) {
+      await applyFontToPreview(selectedFont)
+    } else {
+      // 如果没有保存的字体，加载默认字体
+      await initDefaultFont()
+    }
+  })
+
   const handleKeydown = (evt: Event | KeyboardEvent) => {
     const e = evt as KeyboardEvent
     if (e.key === 'Enter') {
@@ -51,51 +74,30 @@ export default function ResumeEditor() {
     }
   }
 
-  const exportToPDF = async () => {
+  const exportToPDFDirect = async () => {
     try {
-      const previewElement = document.querySelector('.preview-content') as HTMLElement
-      if (!previewElement) {
-        ElMessage.error('预览内容未找到')
-        return
-      }
-
-      // 使用 html2canvas 将 HTML 转换为 canvas
-      const canvas = await html2canvas(previewElement, {
-        scale: 2, // 提高清晰度
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff'
+      // 显示加载提示
+      const loadingMessage = ElMessage({
+        message: '正在生成文字PDF，请稍候...',
+        type: 'info',
+        duration: 0
       })
 
-      // 创建 PDF 文档
-      const imgWidth = 210 // A4 纸宽度 (mm)
-      const pageHeight = 295 // A4 纸高度 (mm)
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
-      let heightLeft = imgHeight
-
-      const pdf = new jsPDF('p', 'mm', 'a4')
-      let position = 0
-
-      // 添加图片到 PDF
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
-      heightLeft -= pageHeight
-
-      // 如果内容超过一页，添加新页
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight
-        pdf.addPage()
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
-        heightLeft -= pageHeight
+      try {
+        await exportHighQualityPDF(resumeStore.resumeData)
+        loadingMessage.close()
+        ElMessage.success('PDF导出成功！')
+      } catch (error) {
+        loadingMessage.close()
+        throw error
       }
-
-      // 下载 PDF
-      pdf.save(`${resumeStore.resumeData.filename}.pdf`)
-      ElMessage.success('PDF 导出成功')
-    } catch (error) {
+    } catch (error: any) {
       console.error('PDF 导出失败:', error)
-      ElMessage.error('PDF 导出失败，请重试')
+      ElMessage.error(`PDF 导出失败: ${error?.message || '未知错误'}`)
     }
   }
+
+
 
   const renderSectionComponent = (sectionType: string) => {
     const componentMap = {
@@ -153,9 +155,19 @@ export default function ResumeEditor() {
                 </div>
               )}
             </div>
-            <ElButton type="primary" onClick={exportToPDF}>
-              导出PDF
-            </ElButton>
+            <div class="header-controls">
+              {/* 字体选择器 */}
+              <div class="font-selector-inline">
+                <span class="font-label">字体:</span>
+                <FontSelector onFontChange={handleFontChange} />
+              </div>
+              
+              <div class="export-buttons">
+                <ElButton type="primary" onClick={exportToPDFDirect}>
+                  导出PDF
+                </ElButton>
+              </div>
+            </div>
           </div>
           
           <div class="preview-container">

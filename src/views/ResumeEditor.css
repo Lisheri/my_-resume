@@ -103,16 +103,58 @@
   font-size: 28px;
   font-weight: 700;
   color: #1a1a1a;
-  margin: 0 0 10px 0;
+  margin: 0 0 15px 0;
 }
 
 .contact-info {
   display: flex;
   justify-content: center;
-  gap: 20px;
-  margin-bottom: 10px;
+  gap: 15px;
+  margin-bottom: 12px;
   font-size: 14px;
   color: #666;
+  flex-wrap: wrap;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0;
+}
+
+.website-info {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-info {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.work-status {
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.job-target {
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .contact-info span {
@@ -211,6 +253,58 @@
   color: #333;
   line-height: 1.6;
   white-space: pre-line;
+}
+
+.filename-edit {
+  flex: 1;
+}
+
+/* 头部控制区域 */
+.header-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* 内联字体选择器 */
+.font-selector-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.font-label {
+  font-size: 14px;
+  color: #606266;
+  white-space: nowrap;
+}
+
+/* 导出按钮区域 */
+.export-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.export-buttons .el-button {
+  font-size: 14px;
+  height: 36px;
+  padding: 10px 20px;
+  border-radius: 6px;
+}
+
+.export-buttons .el-button--primary {
+  background: #409eff;
+  border-color: #409eff;
+}
+
+.export-buttons .el-button--primary:hover {
+  background: #66b1ff;
+  border-color: #66b1ff;
 }
 
  

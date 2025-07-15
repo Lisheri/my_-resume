@@ -83,42 +83,6 @@ export default function BasicInfoSection() {
             </ElSelect>
           </div>
         </ElCol>
-        <ElCol span={8}>
-          <div class="form-item">
-            <label>期望薪资（最低）</label>
-            <ElSelect
-              modelValue={basicInfo.expectedSalaryMin}
-              onChange={(value: string) => updateBasicInfo('expectedSalaryMin', value)}
-              placeholder="请选择最低薪资"
-            >
-              <ElOption label="3K以下" value="3K以下" />
-              <ElOption label="3-5K" value="3-5K" />
-              <ElOption label="5-10K" value="5-10K" />
-              <ElOption label="10-15K" value="10-15K" />
-              <ElOption label="15-25K" value="15-25K" />
-              <ElOption label="25-40K" value="25-40K" />
-              <ElOption label="40K以上" value="40K以上" />
-            </ElSelect>
-          </div>
-        </ElCol>
-        <ElCol span={8}>
-          <div class="form-item">
-            <label>期望薪资（最高）</label>
-            <ElSelect
-              modelValue={basicInfo.expectedSalaryMax}
-              onChange={(value: string) => updateBasicInfo('expectedSalaryMax', value)}
-              placeholder="请选择最高薪资"
-            >
-              <ElOption label="3K以下" value="3K以下" />
-              <ElOption label="3-5K" value="3-5K" />
-              <ElOption label="5-10K" value="5-10K" />
-              <ElOption label="10-15K" value="10-15K" />
-              <ElOption label="15-25K" value="15-25K" />
-              <ElOption label="25-40K" value="25-40K" />
-              <ElOption label="40K以上" value="40K以上" />
-            </ElSelect>
-          </div>
-        </ElCol>
       </ElRow>
 
       <ElRow gutter={20} class="form-row">
