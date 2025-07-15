@@ -1,9 +1,10 @@
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, watch } from 'vue'
 import { ElSelect, ElOption } from 'element-plus'
 import { 
   getAvailableFonts, 
   getSelectedFont, 
   saveSelectedFont,
+  getSelectedFontConfig,
   type FontConfig 
 } from '../utils/fontManager'
 
@@ -24,6 +25,16 @@ export default defineComponent({
         
         if (fonts.length > 0) {
           console.log(`找到 ${fonts.length} 个可用字体`)
+          
+          // 设置当前选中的字体
+          const currentSelected = getSelectedFont()
+          selectedFont.value = currentSelected
+          
+          // 如果当前选中的字体在可用字体列表中，发射变更事件
+          const currentFontConfig = fonts.find(f => f.name === currentSelected)
+          if (currentFontConfig) {
+            emit('fontChange', currentFontConfig)
+          }
         }
       } catch (err) {
         console.error('加载字体列表失败:', err)
@@ -43,8 +54,21 @@ export default defineComponent({
       emit('fontChange', selectedFontConfig)
     }
 
+    // 监听字体变化，确保选择器始终显示正确的字体
+    watch(() => selectedFont.value, (newFont) => {
+      console.log('当前选中字体:', newFont)
+      const fontConfig = availableFonts.value.find(f => f.name === newFont)
+      if (fontConfig) {
+        console.log('当前字体显示名:', fontConfig.displayName)
+      }
+    })
+
     onMounted(() => {
+      // 首先设置当前保存的字体
       selectedFont.value = getSelectedFont()
+      console.log('初始化字体选择器，当前字体:', selectedFont.value)
+      
+      // 然后加载可用字体列表
       loadAvailableFonts()
     })
 

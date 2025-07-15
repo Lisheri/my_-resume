@@ -2,7 +2,6 @@ import pdfMake from 'pdfmake/build/pdfmake'
 import type { TDocumentDefinitions, TFontDictionary } from 'pdfmake/interfaces'
 import type { ResumeData } from '../stores/resume'
 import { 
-  loadFontAsBase64, 
   getSelectedFontConfig, 
   type FontConfig 
 } from './fontManager'
@@ -11,53 +10,19 @@ import {
 let fontsLoaded = false
 let currentFontConfig: FontConfig | null = null
 
-// 动态加载字体并配置pdfMake
-const loadAndSetupFonts = async (fontConfig: FontConfig): Promise<void> => {
-  try {
-    console.log('正在加载字体:', fontConfig.displayName)
-    
-    // 加载常规字体
-    const regularFont = await loadFontAsBase64(fontConfig.regular)
-    
-    // 尝试加载粗体字体
-    let boldFont = regularFont
-    if (fontConfig.bold) {
-      try {
-        boldFont = await loadFontAsBase64(fontConfig.bold)
-      } catch (error) {
-        console.warn('粗体字体加载失败，使用常规字体:', error)
-      }
+// 设置默认字体（不使用自定义字体）
+const setupDefaultFonts = (): void => {
+  const fonts: TFontDictionary = {
+    Roboto: {
+      normal: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf',
+      bold: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf',
+      italics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Italic.ttf',
+      bolditalics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-MediumItalic.ttf'
     }
-    
-    // 设置字体字典
-    const fonts: TFontDictionary = {
-      // 默认字体（保留）
-      Roboto: {
-        normal: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf',
-        bold: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf',
-        italics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Italic.ttf',
-        bolditalics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-MediumItalic.ttf'
-      },
-      // 中文字体
-      [fontConfig.name]: {
-        normal: `data:font/truetype;charset=utf-8;base64,${regularFont}`,
-        bold: `data:font/truetype;charset=utf-8;base64,${boldFont}`,
-        italics: `data:font/truetype;charset=utf-8;base64,${regularFont}`,
-        bolditalics: `data:font/truetype;charset=utf-8;base64,${boldFont}`
-      }
-    }
-    
-    // 配置pdfMake字体
-    pdfMake.fonts = fonts
-    
-    fontsLoaded = true
-    currentFontConfig = fontConfig
-    console.log('字体加载成功:', fontConfig.displayName)
-    
-  } catch (error) {
-    console.error('字体加载失败:', error)
-    throw new Error(`字体加载失败: ${fontConfig.displayName}`)
   }
+  
+  pdfMake.fonts = fonts
+  console.log('使用默认Roboto字体配置')
 }
 
 // 文本处理函数
@@ -67,7 +32,7 @@ const formatText = (text: string): string => {
 }
 
 // 创建PDF文档定义
-const createDocumentDefinition = (resumeData: ResumeData, fontName: string): TDocumentDefinitions => {
+const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions => {
   const { basicInfo, sections, skills, workExperiences, projectExperiences, educations, personalSummary } = resumeData
 
   const content: any[] = []
@@ -258,40 +223,34 @@ const createDocumentDefinition = (resumeData: ResumeData, fontName: string): TDo
       header: {
         fontSize: 24,
         bold: true,
-        color: '#333333',
-        font: fontName
+        color: '#333333'
       },
       sectionHeader: {
         fontSize: 16,
         bold: true,
         color: '#333333',
-        decoration: 'underline',
-        font: fontName
+        decoration: 'underline'
       },
       subHeader: {
         fontSize: 12,
         bold: true,
-        color: '#333333',
-        font: fontName
+        color: '#333333'
       },
       dateText: {
         fontSize: 10,
         color: '#666666',
-        italics: true,
-        font: fontName
+        italics: true
       },
       roleText: {
         fontSize: 10,
         color: '#666666',
-        italics: true,
-        font: fontName
+        italics: true
       }
     },
     defaultStyle: {
       fontSize: 11,
       color: '#333333',
-      lineHeight: 1.3,
-      font: fontName
+      lineHeight: 1.3
     },
     pageSize: 'A4',
     pageMargins: [40, 60, 40, 60] as [number, number, number, number]
@@ -304,39 +263,28 @@ export const exportToPDFDirect = async (resumeData: ResumeData): Promise<any> =>
   throw new Error('请使用 exportHighQualityPDF 函数')
 }
 
-// 高质量PDF导出（支持中文字体）
+// 高质量PDF导出（暂时使用默认字体，避免复杂的字体加载问题）
 export const exportHighQualityPDF = async (resumeData: ResumeData): Promise<void> => {
   try {
-    console.log('开始生成支持中文的PDF...')
+    console.log('开始生成PDF...')
     
-    // 获取选中的字体配置
-    const fontConfig = getSelectedFontConfig()
-    
-    // 检查是否需要重新加载字体
-    if (!fontsLoaded || currentFontConfig?.name !== fontConfig.name) {
-      await loadAndSetupFonts(fontConfig)
-    }
+    // 暂时使用默认字体，避免字体加载问题
+    setupDefaultFonts()
     
     // 创建文档定义
-    const docDefinition = createDocumentDefinition(resumeData, fontConfig.name)
+    const docDefinition = createDocumentDefinition(resumeData)
     const fileName = `${formatText(resumeData.basicInfo.name) || 'resume'}_resume.pdf`
+    
+    console.log('正在生成PDF文件...')
     
     // 生成并下载PDF
     pdfMake.createPdf(docDefinition).download(fileName)
     
     console.log('PDF导出成功! 文件名:', fileName)
-    console.log('使用字体:', fontConfig.displayName)
     
   } catch (error) {
     console.error('PDF导出失败:', error)
-    
-    // 如果是字体加载失败，提供友好的错误信息
-    if (error instanceof Error && error.message.includes('字体加载失败')) {
-      alert(`字体加载失败，请检查字体文件是否存在。\n错误详情: ${error.message}`)
-    } else {
-      alert('PDF导出失败，请检查简历内容后重试')
-    }
-    
-    throw error
+    alert('PDF导出失败，请重试')
+    throw error // 重新抛出错误，确保调用者知道失败了
   }
 }
