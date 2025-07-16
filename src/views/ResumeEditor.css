@@ -255,6 +255,26 @@
   white-space: pre-line;
 }
 
+/* 技能分类样式 */
+.skill-category {
+  margin-bottom: 16px;
+}
+
+.skill-category h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 8px 0;
+  border-left: 3px solid #409eff;
+  padding-left: 8px;
+}
+
+.skill-category p {
+  margin: 4px 0;
+  color: #666;
+  line-height: 1.5;
+}
+
 .filename-edit {
   flex: 1;
 }

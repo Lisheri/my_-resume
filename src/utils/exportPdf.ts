@@ -183,24 +183,76 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
 
   // ====== 专业技能 ======
   const skillsSection = sections.find(s => s.type === 'skills')
-  if (skillsSection?.expanded && skills.technical.length > 0) {
+  const hasAnySkills = skills.technical.length > 0 || 
+                      skills.certificates.length > 0 || 
+                      skills.languages.length > 0
+  
+  if (skillsSection?.expanded && hasAnySkills) {
     content.push({
       text: '专业技能',
       style: 'sectionHeader',
       margin: [0, 0, 0, 8]
     })
 
-    // 每个技能单独一行，与预览保持一致
-    skills.technical.forEach((skill, index) => {
+    // 技术技能
+    if (skills.technical.length > 0) {
       content.push({
-        text: `• ${formatText(skill)}`,
-        margin: [0, 0, 0, 3],
-        lineHeight: 1.4
+        text: '技术技能',
+        style: 'skillSubHeader',
+        margin: [0, 0, 0, 6]
       })
-    })
+      
+      skills.technical.forEach((skill) => {
+        content.push({
+          text: `• ${formatText(skill)}`,
+          margin: [0, 0, 0, 3],
+          lineHeight: 1.4
+        })
+      })
+      
+      content.push({ text: '', margin: [0, 0, 0, 8] })
+    }
+
+    // 证书/资质
+    if (skills.certificates.length > 0) {
+      content.push({
+        text: '证书/资质',
+        style: 'skillSubHeader',
+        margin: [0, 0, 0, 6]
+      })
+      
+      skills.certificates.forEach((cert) => {
+        content.push({
+          text: `• ${formatText(cert)}`,
+          margin: [0, 0, 0, 3],
+          lineHeight: 1.4
+        })
+      })
+      
+      content.push({ text: '', margin: [0, 0, 0, 8] })
+    }
+
+    // 语言能力
+    if (skills.languages.length > 0) {
+      content.push({
+        text: '语言能力',
+        style: 'skillSubHeader',
+        margin: [0, 0, 0, 6]
+      })
+      
+      skills.languages.forEach((lang) => {
+        content.push({
+          text: `• ${formatText(lang)}`,
+          margin: [0, 0, 0, 3],
+          lineHeight: 1.4
+        })
+      })
+      
+      content.push({ text: '', margin: [0, 0, 0, 8] })
+    }
     
     // 添加底部间距
-    content.push({ text: '', margin: [0, 0, 0, 12] })
+    content.push({ text: '', margin: [0, 0, 0, 4] })
   }
 
   // ====== 工作经历 ======
@@ -362,6 +414,12 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
         fontSize: 8,         // 10 -> 8 (减少2px)
         color: '#666666',
         italics: true,
+        font: 'Roboto'
+      },
+      skillSubHeader: {
+        fontSize: 10,
+        bold: true,
+        color: '#333333',
         font: 'Roboto'
       }
     },
