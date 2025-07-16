@@ -1,0 +1,68 @@
+/* iconfont图标样式优化 - 依赖HTML中引入的CDN字体 */
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 14px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #666;
+  /* 确保图标正确渲染 */
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: middle;
+  /* 提升PDF兼容性 */
+  -webkit-font-feature-settings: "liga";
+  font-feature-settings: "liga";
+  /* 添加一些间距 */
+  margin-right: 6px;
+}
+
+/* PDF导出优化 */
+@media print {
+  .iconfont {
+    color: #666 !important;
+    font-size: 12px !important;
+  }
+}
+
+/* 个人信息区域图标优化 */
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.contact-item .iconfont {
+  font-size: 14px;
+  color: #666;
+  margin-right: 0; /* 使用gap控制间距 */
+}
+
+.website-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+.website-info .iconfont {
+  font-size: 14px;
+  color: #666;
+  margin-right: 0;
+}
+
+.work-status,
+.job-target {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.work-status .iconfont,
+.job-target .iconfont {
+  font-size: 14px;
+  color: #666;
+  margin-right: 0;
+}

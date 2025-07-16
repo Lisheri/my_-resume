@@ -1,24 +1,40 @@
 import pdfMake from 'pdfmake/build/pdfmake'
-import type { TDocumentDefinitions, TFontDictionary } from 'pdfmake/interfaces'
+import type { TDocumentDefinitions } from 'pdfmake/interfaces'
 import type { ResumeData } from '../stores/resume'
 
-// 简化字体配置，暂时不加载复杂字体避免内存问题
+// 图标映射 - 将iconfont类名映射到Unicode字符
+const ICON_MAP: { [key: string]: string } = {
+  'icon-gengduobeifen25': '\ue717',  // 电话图标
+  'icon-youjian1': '\ue733',        // 邮件图标
+  'icon-weizhi': '\ue810',          // 位置图标
+  'icon-out_link': '\ue6e2',        // 链接图标
+  'icon-tysp_renshu': '\ue6ec',     // 个人图标 (工作状态)
+  'icon-jifen-kaoshirenwu': '\ue839' // 目标图标
+}
+
+// 配置字体支持
 const setupChineseFont = async (): Promise<void> => {
   try {
     console.log('配置字体支持...')
     
-    // 暂时使用默认Roboto字体，避免大字体文件导致的内存问题
-    // 后续可以优化为使用轻量级的中文字体子集
+    // 配置pdfMake字体 - 包含中文字体和iconfont
     pdfMake.fonts = {
       Roboto: {
         normal: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-Bold.ttf',
         bold: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-ExtraLight.ttf',
         italics: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-Heavy.ttf',
         bolditalics: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-ExtraLight.ttf'
+      },
+      // 添加iconfont字体支持 - 使用TTF格式
+      iconfont: {
+        normal: 'https://at.alicdn.com/t/c/font_4976813_y9pc58z6rd.ttf',
+        bold: 'https://at.alicdn.com/t/c/font_4976813_y9pc58z6rd.ttf',
+        italics: 'https://at.alicdn.com/t/c/font_4976813_y9pc58z6rd.ttf',
+        bolditalics: 'https://at.alicdn.com/t/c/font_4976813_y9pc58z6rd.ttf'
       }
     }
     
-    console.log('字体配置完成 (使用Roboto字体)')
+    console.log('字体配置完成 (包含iconfont字体)')
     
   } catch (error) {
     console.error('字体配置失败:', error)
@@ -26,8 +42,46 @@ const setupChineseFont = async (): Promise<void> => {
   }
 }
 
+// 获取图标字符
+const getIconChar = (iconClass: string): string => {
+  return ICON_MAP[iconClass] || ''
+}
+
+// 创建带图标的文本 - 使用iconfont字体
+const createIconText = (iconClass: string, text: string): any[] => {
+  const iconChar = getIconChar(iconClass)
+  if (iconChar) {
+    return [
+      {
+        text: iconChar,
+        font: 'iconfont',
+        fontSize: 10,
+        color: '#666666'
+      },
+      {
+        text: ` ${text}`,
+        font: 'Roboto',
+        fontSize: 10,
+        color: '#333333'
+      }
+    ]
+  }
+  return [{
+    text: text,
+    font: 'Roboto',
+    fontSize: 10,
+    color: '#333333'
+  }]
+}
+
 // 文本处理函数
 const formatText = (text: string): string => {
+  if (!text) return ''
+  return text.replace(/\n/g, ' ').trim()
+}
+
+// 保持换行的文本处理函数（用于个人总结等需要保持格式的内容）
+const formatTextWithLineBreaks = (text: string): string => {
   if (!text) return ''
   return text.trim()
 }
@@ -38,81 +92,124 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
 
   const content: any[] = []
 
-  // ====== 基本信息 ======
+  // ====== 基本信息（Header优化） ======
+  // 姓名
   content.push({
     text: formatText(basicInfo.name) || '简历',
     style: 'header',
     alignment: 'center',
-    margin: [0, 0, 0, 20]
+    margin: [0, 0, 0, 16]
   })
 
-  // 联系信息
-  const contactInfo = [
-    basicInfo.phone && `📞 ${basicInfo.phone}`,
-    basicInfo.email && `📧 ${basicInfo.email}`,
-    basicInfo.location && `📍 ${formatText(basicInfo.location)}`
-  ].filter(Boolean).join('  |  ')
+  // 联系信息 - 优化布局，放在一行
+  const contactTexts = []
+  if (basicInfo.phone) {
+    contactTexts.push(createIconText('icon-gengduobeifen25', basicInfo.phone))
+  }
+  if (basicInfo.email) {
+    contactTexts.push(createIconText('icon-youjian1', basicInfo.email))
+  }
+  if (basicInfo.location) {
+    contactTexts.push(createIconText('icon-weizhi', formatText(basicInfo.location)))
+  }
 
-  if (contactInfo) {
+  if (contactTexts.length > 0) {
+    // 将联系信息合并为一行，用分隔符分开
+    const combinedContact: any[] = []
+    contactTexts.forEach((contact, index) => {
+      combinedContact.push(...contact)
+      if (index < contactTexts.length - 1) {
+        combinedContact.push({
+          text: '  |  ',
+          font: 'Roboto',
+          fontSize: 10,
+          color: '#999999'
+        })
+      }
+    })
+    
     content.push({
-      text: contactInfo,
+      text: combinedContact,
       alignment: 'center',
-      margin: [0, 0, 0, 10]
+      margin: [0, 0, 0, 8]
     })
   }
 
   // 个人网站
   if (basicInfo.website) {
     content.push({
-      text: `🔗 ${basicInfo.website}`,
+      text: createIconText('icon-out_link', basicInfo.website),
       alignment: 'center',
-      margin: [0, 0, 0, 10]
+      margin: [0, 0, 0, 8]
     })
   }
 
-  // 工作状态
-  const statusInfo = [
-    basicInfo.workStatus && `👤 ${formatText(basicInfo.workStatus)}`,
-    basicInfo.jobTarget && `🎯 ${formatText(basicInfo.jobTarget)}`
-  ].filter(Boolean).join('  |  ')
+  // 工作状态和求职目标 - 优化布局
+  const statusTexts = []
+  if (basicInfo.workStatus) {
+    statusTexts.push(createIconText('icon-tysp_renshu', formatText(basicInfo.workStatus)))
+  }
+  if (basicInfo.jobTarget) {
+    statusTexts.push(createIconText('icon-jifen-kaoshirenwu', formatText(basicInfo.jobTarget)))
+  }
 
-  if (statusInfo) {
+  if (statusTexts.length > 0) {
+    // 将状态信息合并为一行
+    const combinedStatus: any[] = []
+    statusTexts.forEach((status, index) => {
+      combinedStatus.push(...status)
+      if (index < statusTexts.length - 1) {
+        combinedStatus.push({
+          text: '  |  ',
+          font: 'Roboto',
+          fontSize: 10,
+          color: '#999999'
+        })
+      }
+    })
+    
     content.push({
-      text: statusInfo,
+      text: combinedStatus,
       alignment: 'center',
-      margin: [0, 0, 0, 20]
+      margin: [0, 0, 0, 14]
     })
   }
 
   // 分割线
   content.push({
     canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 }],
-    margin: [0, 0, 0, 20]
+    margin: [0, 0, 0, 14]
   })
 
   // ====== 专业技能 ======
   const skillsSection = sections.find(s => s.type === 'skills')
   if (skillsSection?.expanded && skills.technical.length > 0) {
     content.push({
-      text: 'PROFESSIONAL SKILLS',
+      text: '专业技能',
       style: 'sectionHeader',
-      margin: [0, 0, 0, 10]
+      margin: [0, 0, 0, 8]
     })
 
-    const skillsText = skills.technical.map(skill => `• ${formatText(skill)}`).join('\n')
-    content.push({
-      text: skillsText,
-      margin: [0, 0, 0, 15]
+    // 每个技能单独一行，与预览保持一致
+    skills.technical.forEach((skill, index) => {
+      content.push({
+        text: `• ${formatText(skill)}`,
+        margin: [0, 0, 0, 3],
+        lineHeight: 1.4
+      })
     })
+    
+    // 添加底部间距
+    content.push({ text: '', margin: [0, 0, 0, 12] })
   }
 
   // ====== 工作经历 ======
   const workSection = sections.find(s => s.type === 'work')
   if (workSection?.expanded && workExperiences.length > 0) {
     content.push({
-      text: 'WORK EXPERIENCE',
+      text: '工作经历',
       style: 'sectionHeader',
-      margin: [0, 0, 0, 15]
+      margin: [0, 0, 0, 12]
     })
 
     workExperiences.forEach((work, index) => {
@@ -120,7 +217,7 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
       content.push({
         text: `${formatText(work.company)} | ${formatText(work.position)}`,
         style: 'subHeader',
-        margin: [0, 0, 0, 5]
+        margin: [0, 0, 0, 4]
       })
 
       // 时间
@@ -128,7 +225,7 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
       content.push({
         text: timeRange,
         style: 'dateText',
-        margin: [0, 0, 0, 8]
+        margin: [0, 0, 0, 6]
       })
 
       // 工作描述
@@ -136,15 +233,16 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
         const descriptions = work.description.split('\n').filter(Boolean)
         descriptions.forEach((desc, i) => {
           content.push({
-            text: `${i + 1}. ${formatText(desc)}`,
-            margin: [0, 0, 0, 3]
+            text: `• ${desc.trim()}`,
+            margin: [0, 0, 0, 2],
+            lineHeight: 1.4
           })
         })
       }
 
       // 添加间距（除了最后一项）
       if (index < workExperiences.length - 1) {
-        content.push({ text: '', margin: [0, 0, 0, 10] })
+        content.push({ text: '', margin: [0, 0, 0, 8] })
       }
     })
   }
@@ -153,37 +251,38 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
   const projectSection = sections.find(s => s.type === 'project')
   if (projectSection?.expanded && projectExperiences.length > 0) {
     content.push({
-      text: 'PROJECT EXPERIENCE',
+      text: '项目经历',
       style: 'sectionHeader',
-      margin: [0, 0, 0, 15]
+      margin: [0, 0, 0, 12]
     })
 
     projectExperiences.forEach((project, index) => {
       content.push({
         text: `${formatText(project.name)} | ${formatText(project.role)}`,
         style: 'subHeader',
-        margin: [0, 0, 0, 5]
+        margin: [0, 0, 0, 4]
       })
 
       const timeRange = `${project.startDate} - ${project.endDate || '至今'}`
       content.push({
         text: timeRange,
         style: 'dateText',
-        margin: [0, 0, 0, 8]
+        margin: [0, 0, 0, 6]
       })
 
       if (project.description) {
         const descriptions = project.description.split('\n').filter(Boolean)
         descriptions.forEach((desc, i) => {
           content.push({
-            text: `${i + 1}. ${formatText(desc)}`,
-            margin: [0, 0, 0, 3]
+            text: `• ${desc.trim()}`,
+            margin: [0, 0, 0, 2],
+            lineHeight: 1.4
           })
         })
       }
 
       if (index < projectExperiences.length - 1) {
-        content.push({ text: '', margin: [0, 0, 0, 10] })
+        content.push({ text: '', margin: [0, 0, 0, 8] })
       }
     })
   }
@@ -192,23 +291,23 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
   const educationSection = sections.find(s => s.type === 'education')
   if (educationSection?.expanded && educations.length > 0) {
     content.push({
-      text: 'EDUCATION',
+      text: '教育经历',
       style: 'sectionHeader',
-      margin: [0, 0, 0, 15]
+      margin: [0, 0, 0, 12]
     })
 
     educations.forEach((edu, index) => {
       content.push({
         text: `${formatText(edu.school)} | ${formatText(edu.major)}`,
         style: 'subHeader',
-        margin: [0, 0, 0, 5]
+        margin: [0, 0, 0, 4]
       })
 
       const timeRange = `${edu.startDate} - ${edu.endDate || '至今'}`
       content.push({
         text: timeRange,
         style: 'dateText',
-        margin: [0, 0, 0, index === educations.length - 1 ? 15 : 10]
+        margin: [0, 0, 0, index === educations.length - 1 ? 12 : 8]
       })
     })
   }
@@ -217,14 +316,23 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
   const summarySection = sections.find(s => s.type === 'summary')
   if (summarySection?.expanded && personalSummary.content) {
     content.push({
-      text: 'PERSONAL SUMMARY',
+      text: '个人总结',
       style: 'sectionHeader',
-      margin: [0, 0, 0, 10]
+      margin: [0, 0, 0, 8]
     })
 
-    content.push({
-      text: formatText(personalSummary.content),
-      margin: [0, 0, 0, 10]
+    // 处理个人总结内容，保持换行格式
+    const summaryText = formatTextWithLineBreaks(personalSummary.content)
+    
+    // 按行分割并创建段落
+    const summaryLines = summaryText.split('\n').filter(line => line.trim())
+    
+    summaryLines.forEach((line, index) => {
+      content.push({
+        text: line.trim(),
+        margin: [0, 0, 0, index === summaryLines.length - 1 ? 8 : 4],
+        lineHeight: 1.4
+      })
     })
   }
 
@@ -232,52 +340,40 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
     content,
     styles: {
       header: {
-        fontSize: 24,
+        fontSize: 22,        // 24 -> 22 (减少2px)
         bold: true,
         color: '#333333',
         font: 'Roboto'
       },
       sectionHeader: {
-        fontSize: 16,
+        fontSize: 14,        // 16 -> 14 (减少2px)
         bold: true,
         color: '#333333',
         decoration: 'underline',
         font: 'Roboto'
       },
       subHeader: {
-        fontSize: 12,
+        fontSize: 10,        // 12 -> 10 (减少2px)
         bold: true,
         color: '#333333',
         font: 'Roboto'
       },
       dateText: {
-        fontSize: 10,
-        color: '#666666',
-        italics: true,
-        font: 'Roboto'
-      },
-      roleText: {
-        fontSize: 10,
+        fontSize: 8,         // 10 -> 8 (减少2px)
         color: '#666666',
         italics: true,
         font: 'Roboto'
       }
     },
     defaultStyle: {
-      fontSize: 11,
+      fontSize: 10,          // 11 -> 10 (减少1px，保持偶数)
       color: '#333333',
-      lineHeight: 1.3,
+      lineHeight: 1.4,       // 提高行高，改善可读性
       font: 'Roboto'
     },
     pageSize: 'A4',
     pageMargins: [40, 60, 40, 60] as [number, number, number, number]
   }
-}
-
-// 旧的导出函数（已废弃）
-export const exportToPDFDirect = async (resumeData: ResumeData): Promise<any> => {
-  console.warn('该函数已废弃，请使用 exportHighQualityPDF')
-  throw new Error('请使用 exportHighQualityPDF 函数')
 }
 
 // 高质量PDF导出
@@ -286,7 +382,7 @@ export const exportHighQualityPDF = async (resumeData: ResumeData): Promise<void
     console.log('开始生成PDF...')
     console.log('简历数据:', resumeData)
     
-    // 设置中文字体
+    // 设置中文字体和iconfont
     await setupChineseFont()
     
     // 创建文档定义

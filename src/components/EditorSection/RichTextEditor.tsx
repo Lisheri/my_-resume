@@ -1,11 +1,6 @@
 import { defineComponent } from 'vue'
 import { ElInput } from 'element-plus'
 
-interface Props {
-  modelValue: string
-  placeholder?: string
-}
-
 export default defineComponent({
   name: 'RichTextEditor',
   props: {

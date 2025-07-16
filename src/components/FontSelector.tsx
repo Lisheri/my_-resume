@@ -4,7 +4,6 @@ import {
   getAvailableFonts, 
   getSelectedFont, 
   saveSelectedFont,
-  getSelectedFontConfig,
   type FontConfig 
 } from '../utils/fontManager'
 

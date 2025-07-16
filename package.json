@@ -9,6 +9,9 @@
     "preview": "vite preview",
     "serve": "vite preview"
   },
+  "overrides": {
+    "vite": "npm:rolldown-vite@latest"
+  },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
     "@fontsource/noto-sans-sc": "^5.2.6",
@@ -19,7 +22,7 @@
     "md-editor-v3": "^5.0.0",
     "pdfmake": "^0.2.20",
     "pinia": "^2.1.6",
-    "vue": "^3.3.4",
+    "vue": "^3.5.17",
     "vue-router": "^4.2.4",
     "vuedraggable": "^4.1.0"
   },
@@ -28,8 +31,9 @@
     "@types/pdfmake": "^0.2.11",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vitejs/plugin-vue-jsx": "^5.0.1",
+    "esbuild": "^0.25.6",
     "typescript": "^5.7.3",
-    "vite": "^7.0.4",
+    "vite": "npm:rolldown-vite@latest",
     "vue-tsc": "^3.0.1"
   }
 }

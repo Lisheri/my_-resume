@@ -1,4 +1,4 @@
-import { ElInput, ElButton, ElRow, ElCol, ElSelect, ElOption } from 'element-plus'
+import { ElInput, ElRow, ElCol, ElSelect, ElOption } from 'element-plus'
 import { useResumeStore } from '../../stores/resume'
 import './SectionCommon.css'
 
