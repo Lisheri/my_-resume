@@ -21,9 +21,11 @@ const setupChineseFont = async (): Promise<void> => {
     pdfMake.fonts = {
       Roboto: {
         normal: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-Bold.ttf',
-        bold: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-ExtraLight.ttf',
+        bold: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-Bold.ttf',
         italics: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-Heavy.ttf',
+        // bolditalics: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-Bold.ttf'
         bolditalics: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-ExtraLight.ttf'
+        
       },
       // 添加iconfont字体支持 - 使用TTF格式
       iconfont: {
@@ -55,22 +57,17 @@ const createIconText = (iconClass: string, text: string): any[] => {
       {
         text: iconChar,
         font: 'iconfont',
-        fontSize: 10,
-        color: '#666666'
+        style: 'iconStyle'
       },
       {
         text: ` ${text}`,
-        font: 'Roboto',
-        fontSize: 10,
-        color: '#333333'
+        style: 'contactText'
       }
     ]
   }
   return [{
     text: text,
-    font: 'Roboto',
-    fontSize: 10,
-    color: '#333333'
+    style: 'contactText'
   }]
 }
 
@@ -121,9 +118,7 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
       if (index < contactTexts.length - 1) {
         combinedContact.push({
           text: '  |  ',
-          font: 'Roboto',
-          fontSize: 10,
-          color: '#999999'
+          style: 'separatorText'
         })
       }
     })
@@ -161,9 +156,7 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
       if (index < statusTexts.length - 1) {
         combinedStatus.push({
           text: '  |  ',
-          font: 'Roboto',
-          fontSize: 10,
-          color: '#999999'
+          style: 'separatorText'
         })
       }
     })
@@ -205,8 +198,8 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
       skills.technical.forEach((skill) => {
         content.push({
           text: `• ${formatText(skill)}`,
-          margin: [0, 0, 0, 3],
-          lineHeight: 1.4
+          style: 'listItem',
+          margin: [0, 0, 0, 3]
         })
       })
       
@@ -224,8 +217,8 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
       skills.certificates.forEach((cert) => {
         content.push({
           text: `• ${formatText(cert)}`,
-          margin: [0, 0, 0, 3],
-          lineHeight: 1.4
+          style: 'listItem',
+          margin: [0, 0, 0, 3]
         })
       })
       
@@ -243,8 +236,8 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
       skills.languages.forEach((lang) => {
         content.push({
           text: `• ${formatText(lang)}`,
-          margin: [0, 0, 0, 3],
-          lineHeight: 1.4
+          style: 'listItem',
+          margin: [0, 0, 0, 3]
         })
       })
       
@@ -286,8 +279,8 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
         descriptions.forEach((desc, i) => {
           content.push({
             text: `• ${desc.trim()}`,
-            margin: [0, 0, 0, 2],
-            lineHeight: 1.4
+            style: 'listItem',
+            margin: [0, 0, 0, 2]
           })
         })
       }
@@ -327,8 +320,8 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
         descriptions.forEach((desc, i) => {
           content.push({
             text: `• ${desc.trim()}`,
-            margin: [0, 0, 0, 2],
-            lineHeight: 1.4
+            style: 'listItem',
+            margin: [0, 0, 0, 2]
           })
         })
       }
@@ -382,8 +375,8 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
     summaryLines.forEach((line, index) => {
       content.push({
         text: line.trim(),
-        margin: [0, 0, 0, index === summaryLines.length - 1 ? 8 : 4],
-        lineHeight: 1.4
+        style: 'bodyText',
+        margin: [0, 0, 0, index === summaryLines.length - 1 ? 8 : 4]
       })
     })
   }
@@ -391,42 +384,80 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
   return {
     content,
     styles: {
+      // 主标题（姓名）
       header: {
-        fontSize: 22,        // 24 -> 22 (减少2px)
+        fontSize: 22,
         bold: true,
         color: '#333333',
         font: 'Roboto'
       },
+      // 区域标题（专业技能、工作经历等）
       sectionHeader: {
-        fontSize: 14,        // 16 -> 14 (减少2px)
+        fontSize: 10,
         bold: true,
         color: '#333333',
         decoration: 'underline',
         font: 'Roboto'
       },
+      // 子标题（公司职位、项目名称等）
       subHeader: {
-        fontSize: 10,        // 12 -> 10 (减少2px)
+        fontSize: 10,
         bold: true,
         color: '#333333',
         font: 'Roboto'
       },
-      dateText: {
-        fontSize: 8,         // 10 -> 8 (减少2px)
-        color: '#666666',
-        italics: true,
-        font: 'Roboto'
-      },
+      // 技能分类标题
       skillSubHeader: {
         fontSize: 10,
         bold: true,
         color: '#333333',
         font: 'Roboto'
+      },
+      // 日期文本
+      dateText: {
+        fontSize: 10,
+        color: '#333333',
+        italics: true,
+        font: 'Roboto'
+      },
+      // 联系信息文本
+      contactText: {
+        fontSize: 10,
+        color: '#333333',
+        font: 'Roboto'
+      },
+      // 图标样式
+      iconStyle: {
+        fontSize: 10,
+        color: '#666666'
+      },
+      // 分隔符文本
+      separatorText: {
+        fontSize: 10,
+        color: '#999999',
+        font: 'Roboto'
+      },
+      // 列表项（技能、工作描述等）
+      listItem: {
+        fontSize: 10,
+        bold: true,
+        color: '#333333',
+        lineHeight: 1.4,
+        font: 'Roboto'
+      },
+      // 正文文本（个人总结等）
+      bodyText: {
+        fontSize: 10,
+        bold: true,
+        color: '#333333',
+        lineHeight: 1.4,
+        font: 'Roboto'
       }
     },
     defaultStyle: {
-      fontSize: 10,          // 11 -> 10 (减少1px，保持偶数)
+      fontSize: 10,
       color: '#333333',
-      lineHeight: 1.4,       // 提高行高，改善可读性
+      lineHeight: 1.4,
       font: 'Roboto'
     },
     pageSize: 'A4',
