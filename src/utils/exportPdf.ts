@@ -258,27 +258,47 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
     })
 
     workExperiences.forEach((work, index) => {
-      // 公司和职位
+      // 公司名称和时间在同一行
       content.push({
-        text: `${formatText(work.company)} | ${formatText(work.position)}`,
-        style: 'subHeader',
-        margin: [0, 0, 0, 4]
+        columns: [
+          {
+            text: formatText(work.company),
+            style: 'companyName',
+            width: '*'
+          },
+          {
+            text: `${work.startDate} - ${work.endDate || '至今'}`,
+            style: 'dateText',
+            alignment: 'right',
+            width: 'auto'
+          }
+        ],
+        margin: [0, 0, 0, 2]
       })
 
-      // 时间
-      const timeRange = `${work.startDate} - ${work.endDate || '至今'}`
-      content.push({
-        text: timeRange,
-        style: 'dateText',
-        margin: [0, 0, 0, 6]
-      })
+      // 职位、部门、城市等信息
+      const jobDetails = []
+      if (work.position) jobDetails.push(formatText(work.position))
+      if (work.department) jobDetails.push(formatText(work.department))
+      if (work.location) jobDetails.push(formatText(work.location))
+      
+      if (jobDetails.length > 0) {
+        content.push({
+          text: jobDetails.join(' | '),
+          style: 'jobDetails',
+          margin: [0, 0, 0, 6]
+        })
+      }
 
       // 工作描述
       if (work.description) {
         const descriptions = work.description.split('\n').filter(Boolean)
         descriptions.forEach((desc, i) => {
+          const trimmedDesc = desc.trim()
+          // 如果描述已经以数字开头，保持原格式；否则添加项目符号
+          const listText = /^\d+\./.test(trimmedDesc) ? trimmedDesc : `${i + 1}. ${trimmedDesc}`
           content.push({
-            text: `• ${desc.trim()}`,
+            text: listText,
             style: 'listItem',
             margin: [0, 0, 0, 2]
           })
@@ -287,9 +307,12 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
 
       // 添加间距（除了最后一项）
       if (index < workExperiences.length - 1) {
-        content.push({ text: '', margin: [0, 0, 0, 8] })
+        content.push({ text: '', margin: [0, 0, 0, 12] })
       }
     })
+    
+    // 工作经历整个区域的底部间距
+    content.push({ text: '', margin: [0, 0, 0, 8] })
   }
 
   // ====== 项目经历 ======
@@ -302,34 +325,55 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
     })
 
     projectExperiences.forEach((project, index) => {
+      // 项目名称和时间在同一行
       content.push({
-        text: `${formatText(project.name)} | ${formatText(project.role)}`,
-        style: 'subHeader',
-        margin: [0, 0, 0, 4]
+        columns: [
+          {
+            text: formatText(project.name),
+            style: 'companyName',
+            width: '*'
+          },
+          {
+            text: `${project.startDate} - ${project.endDate || '至今'}`,
+            style: 'dateText',
+            alignment: 'right',
+            width: 'auto'
+          }
+        ],
+        margin: [0, 0, 0, 2]
       })
+      
+      // 角色信息
+      if (project.role) {
+        content.push({
+          text: formatText(project.role),
+          style: 'jobDetails',
+          margin: [0, 0, 0, 6]
+        })
+      }
 
-      const timeRange = `${project.startDate} - ${project.endDate || '至今'}`
-      content.push({
-        text: timeRange,
-        style: 'dateText',
-        margin: [0, 0, 0, 6]
-      })
-
+      // 项目描述
       if (project.description) {
         const descriptions = project.description.split('\n').filter(Boolean)
         descriptions.forEach((desc, i) => {
+          const trimmedDesc = desc.trim()
+          const listText = /^\d+\./.test(trimmedDesc) ? trimmedDesc : `${i + 1}. ${trimmedDesc}`
           content.push({
-            text: `• ${desc.trim()}`,
+            text: listText,
             style: 'listItem',
             margin: [0, 0, 0, 2]
           })
         })
       }
 
+      // 添加间距（除了最后一项）
       if (index < projectExperiences.length - 1) {
-        content.push({ text: '', margin: [0, 0, 0, 8] })
+        content.push({ text: '', margin: [0, 0, 0, 12] })
       }
     })
+    
+    // 项目经历整个区域的底部间距
+    content.push({ text: '', margin: [0, 0, 0, 8] })
   }
 
   // ====== 教育经历 ======
@@ -342,18 +386,36 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
     })
 
     educations.forEach((edu, index) => {
+      // 学校名称和时间在同一行
       content.push({
-        text: `${formatText(edu.school)} | ${formatText(edu.major)}`,
-        style: 'subHeader',
-        margin: [0, 0, 0, 4]
+        columns: [
+          {
+            text: formatText(edu.school),
+            style: 'companyName',
+            width: '*'
+          },
+          {
+            text: `${edu.startDate} - ${edu.endDate || '至今'}`,
+            style: 'dateText',
+            alignment: 'right',
+            width: 'auto'
+          }
+        ],
+        margin: [0, 0, 0, 2]
       })
 
-      const timeRange = `${edu.startDate} - ${edu.endDate || '至今'}`
-      content.push({
-        text: timeRange,
-        style: 'dateText',
-        margin: [0, 0, 0, index === educations.length - 1 ? 12 : 8]
-      })
+      // 专业和学历
+      const eduDetails = []
+      if (edu.major) eduDetails.push(formatText(edu.major))
+      if (edu.degree) eduDetails.push(formatText(edu.degree))
+      
+      if (eduDetails.length > 0) {
+        content.push({
+          text: eduDetails.join(' | '),
+          style: 'jobDetails',
+          margin: [0, 0, 0, index === educations.length - 1 ? 8 : 12]
+        })
+      }
     })
   }
 
@@ -451,6 +513,19 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
         bold: true,
         color: '#333333',
         lineHeight: 1.4,
+        font: 'Roboto'
+      },
+      // 公司名称样式
+      companyName: {
+        fontSize: 10,
+        bold: true,
+        color: '#333333',
+        font: 'Roboto'
+      },
+      // 职位详情样式
+      jobDetails: {
+        fontSize: 10,
+        color: '#333333',
         font: 'Roboto'
       }
     },
