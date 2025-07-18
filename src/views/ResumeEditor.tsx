@@ -1,6 +1,6 @@
 import { ElInput, ElButton, ElMessage } from 'element-plus';
 import { useResumeStore } from '../stores/resume';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { exportHighQualityPDF } from '../utils/exportPdf';
 import { applyFontToPreview, initDefaultFont } from '../utils/fontLoader';
 import { getSelectedFont } from '../utils/fontManager';
@@ -53,6 +53,42 @@ export default function ResumeEditor() {
     }
   };
 
+  const handleSave = () => {
+    try {
+      resumeStore.saveToStorage();
+      ElMessage.success('简历已保存到本地');
+    } catch (error: any) {
+      ElMessage.error(`保存失败: ${error?.message || '未知错误'}`);
+    }
+  };
+
+  // 格式化最后修改时间
+  const lastModifiedText = computed(() => {
+    const date = resumeStore.resumeData.lastModified;
+    if (!date) return '';
+    
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / (1000 * 60));
+    
+    if (minutes < 1) return '刚刚保存';
+    if (minutes < 60) return `${minutes}分钟前保存`;
+    
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}小时前保存`;
+    
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+  });
+
+  // 快捷键保存功能
+  const handleGlobalKeydown = (e: KeyboardEvent) => {
+    // Ctrl+S 或 Cmd+S 保存
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      handleSave();
+    }
+  };
+
   // 初始化字体
   onMounted(async () => {
     // 加载保存的字体设置
@@ -63,6 +99,19 @@ export default function ResumeEditor() {
       // 如果没有保存的字体，加载默认字体
       await initDefaultFont();
     }
+    
+    // 启动自动保存
+    resumeStore.startAutoSave();
+    
+    // 添加全局键盘监听
+    document.addEventListener('keydown', handleGlobalKeydown);
+  });
+
+  // 组件卸载时停止自动保存
+  onUnmounted(() => {
+    resumeStore.stopAutoSave();
+    // 移除全局键盘监听
+    document.removeEventListener('keydown', handleGlobalKeydown);
   });
 
   const handleKeydown = (evt: Event | KeyboardEvent) => {
@@ -168,10 +217,18 @@ export default function ResumeEditor() {
                 <FontSelector onFontChange={handleFontChange} />
               </div>
 
-              <div class="export-buttons">
-                <ElButton type="primary" onClick={exportToPDFDirect}>
-                  导出PDF
-                </ElButton>
+              <div class="header-actions">
+                <div class="save-status">
+                  <span class="last-modified">{lastModifiedText.value}</span>
+                </div>
+                <div class="export-buttons">
+                  <ElButton class="el-button--save" onClick={handleSave}>
+                    保存
+                  </ElButton>
+                  <ElButton type="primary" onClick={exportToPDFDirect}>
+                    导出PDF
+                  </ElButton>
+                </div>
               </div>
             </div>
           </div>

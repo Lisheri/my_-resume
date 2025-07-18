@@ -89,105 +89,201 @@ export interface ResumeData {
   personalSummary: PersonalSummary
 }
 
-export const useResumeStore = defineStore('resume', () => {
-  const resumeData = ref<ResumeData>({
-    filename: '我的简历',
-    lastModified: new Date(),
-    sections: [
-      { id: 'basic', title: '基本信息', type: 'basic', expanded: true, visible: true, order: 1 },
-      { id: 'skills', title: '专业技能', type: 'skills', expanded: true, visible: true, order: 2 },
-      { id: 'work', title: '工作经历', type: 'work', expanded: true, visible: true, order: 3 },
-      { id: 'project', title: '项目经历', type: 'project', expanded: true, visible: true, order: 4 },
-      { id: 'education', title: '教育经历', type: 'education', expanded: true, visible: true, order: 5 },
-      { id: 'summary', title: '个人总结', type: 'summary', expanded: true, visible: true, order: 6 },
-    ],
-    basicInfo: {
-      name: '莫洪恩',
-      phone: '18181612986',
-      email: '496585582@qq.com',
+// localStorage 相关常量
+const RESUME_STORAGE_KEY = 'resume_data'
+const AUTO_SAVE_INTERVAL = 30000 // 30秒自动保存
+
+// 默认简历数据
+const getDefaultResumeData = (): ResumeData => ({
+  filename: '我的简历',
+  lastModified: new Date(),
+  sections: [
+    { id: 'basic', title: '基本信息', type: 'basic', expanded: true, visible: true, order: 1 },
+    { id: 'skills', title: '专业技能', type: 'skills', expanded: true, visible: true, order: 2 },
+    { id: 'work', title: '工作经历', type: 'work', expanded: true, visible: true, order: 3 },
+    { id: 'project', title: '项目经历', type: 'project', expanded: true, visible: true, order: 4 },
+    { id: 'education', title: '教育经历', type: 'education', expanded: true, visible: true, order: 5 },
+    { id: 'summary', title: '个人总结', type: 'summary', expanded: true, visible: true, order: 6 },
+  ],
+  basicInfo: {
+    name: '莫洪恩',
+    phone: '18181612986',
+    email: '496585582@qq.com',
+    location: '成都',
+    website: 'https://github.com/Lisheri',
+    jobTarget: '前端开发工程师',
+    expectedSalaryMin: '',
+    expectedSalaryMax: '',
+    workStatus: '在职',
+    targetLocation: '请填写意向城市'
+  },
+  skills: {
+    technical: ['Vue(熟练使用Vue2、3，了解其底层原理)、javascript(熟练使用)、typescript(熟练使用)、HTML5+CSS3(熟练使用)、node.js (7年)、react(7年)、react-native(7年)、uniapp(7年)、qiankun(7年)、vueief(7年)'],
+    certificates: [],
+    languages: [],
+    hobbies: [],
+    activities: []
+  },
+  workExperiences: [
+    {
+      id: '1',
+      company: '北京值得买科技股份有限公司',
+      position: '前端开发工程师',
+      department: '大前端研发部',
       location: '成都',
-      website: 'https://github.com/Lisheri',
-      jobTarget: '前端开发工程师',
-      expectedSalaryMin: '',
-      expectedSalaryMax: '',
-      workStatus: '在职',
-      targetLocation: '请填写意向城市'
+      startDate: '2023-09',
+      endDate: '至今',
+      description: '1. 负责达摩可视化平台(pnpm monorepo + vue3架)架构设计、调研、开发、维护以及优化，包含管理后台、编辑器、渲染器、业务组件包、hooks包以及nestjs中间层。\n2. 负责前端工具平台(以vue3+wujie为基座的微前端应用，共计接入7个微应用)架构设计、开发以及微应用接入。\n3.负责迷途低代码平台服务端(nestjs+mysql)开发及维护。\n4.负责阿拉丁(vue2+fabricjs)图片生成工具开发及维护。\n5.负责商品库后台管理系统(vue3)开发及优化'
     },
-    skills: {
-      technical: ['Vue(熟练使用Vue2、3，了解其底层原理)、javascript(熟练使用)、typescript(熟练使用)、HTML5+CSS3(熟练使用)、node.js (7年)、react(7年)、react-native(7年)、uniapp(7年)、qiankun(7年)、vueief(7年)'],
-      certificates: [],
-      languages: [],
-      hobbies: [],
-      activities: []
-    },
-    workExperiences: [
-      {
-        id: '1',
-        company: '北京值得买科技股份有限公司',
-        position: '前端开发工程师',
-        department: '大前端研发部',
-        location: '成都',
-        startDate: '2023-09',
-        endDate: '至今',
-        description: '1. 负责达摩可视化平台(pnpm monorepo + vue3架)架构设计、调研、开发、维护以及优化，包含管理后台、编辑器、渲染器、业务组件包、hooks包以及nestjs中间层。\n2. 负责前端工具平台(以vue3+wujie为基座的微前端应用，共计接入7个微应用)架构设计、开发以及微应用接入。\n3.负责迷途低代码平台服务端(nestjs+mysql)开发及维护。\n4.负责阿拉丁(vue2+fabricjs)图片生成工具开发及维护。\n5.负责商品库后台管理系统(vue3)开发及优化'
-      },
-      {
-        id: '2',
-        company: '深圳小鹅网络技术有限公司',
-        position: '前端开发工程师',
-        department: '多产品中心',
-        location: '深圳',
-        startDate: '2021-07',
-        endDate: '2023-07',
-        description: '负责小鹅通直播间以及小程序(uniapp+vue3+vueuse)产品迭代，功能迭代主要集中在代目及优化小程序商品及页面直播间等登录优化、3.负责小直播管理后台(vue2)开发，并维护以及功能迭代。'
-      }
-    ],
-    projectExperiences: [
-      {
-        id: '1',
-        name: 'damo可视化平台',
-        role: '前端开发工程师',
-        department: '选填',
-        location: '成都',
-        startDate: '2023-10',
-        endDate: '至今',
-        description: '该平台整体上是一个基于 pnpm workspace + turborepo的 monorepo方案，主要技术栈是vue3+ts+wasm，主要包含管理后台，编辑器，H5渲染器，PC渲染器，多个组件库以及公用逻辑，主要目的是通过模板创建H5页面支持多个业务，通过拖拉拽域修改json的方式配置页面。\n我的主要贡献是：\n1.主导项目基础架构以及基础功能开发\n2.升级平台构建，从 Vite 3 升至 Vite7，引入 SWC替代Babel，升级rolldown，优化构建时间从150s左右到15s左右(单核服务器)。\n3. 封装基本校验组件，统一组件开发方式与校验入口，解决表单校验冲突、表单校验入口混乱等问题。\n4.优化组件直接依赖管理系统，优化依赖分析算法及效果，引入rust wasm性能提升80%。\n5. 封装前端基础设施优化开发一体化，并提高效优化添加出cli填载等(实测V400k主包Bios FMP保持0.6~0.8s，Android8左右，所有分包步优化，实用缓存注入人，核下载缓存)'
-      }
-    ],
-    educations: [
-      {
-        id: '1',
-        school: '成都理工大学',
-        major: '数字媒体技术',
-        degree: '本科',
-        gpa: '',
-        ranking: '',
-        startDate: '2016-09',
-        endDate: '2020-06',
-        description: '可以列出成绩、荣誉奖项、相关课程等'
-      }
-    ],
-    personalSummary: {
-      content: '• 喜欢研究前端新技术，新思想，喜欢研究前端工程化和自动化。\n• 有代码洁癖，对空行和空格都很注意。追求注释的准确性。\n• 对工作项目积极负责，对于上级的安排严格服从。\n• 善于与人沟通交流，喜欢交流新知识，喜欢学习他人优点，也喜欢分享自己积累知识。\n• 对于自己手下上线的项目会有成就感。'
+    {
+      id: '2',
+      company: '深圳小鹅网络技术有限公司',
+      position: '前端开发工程师',
+      department: '多产品中心',
+      location: '深圳',
+      startDate: '2021-07',
+      endDate: '2023-07',
+      description: '负责小鹅通直播间以及小程序(uniapp+vue3+vueuse)产品迭代，功能迭代主要集中在代目及优化小程序商品及页面直播间等登录优化、3.负责小直播管理后台(vue2)开发，并维护以及功能迭代。'
     }
-  })
+  ],
+  projectExperiences: [
+    {
+      id: '1',
+      name: 'damo可视化平台',
+      role: '前端开发工程师',
+      department: '选填',
+      location: '成都',
+      startDate: '2023-10',
+      endDate: '至今',
+      description: '该平台整体上是一个基于 pnpm workspace + turborepo的 monorepo方案，主要技术栈是vue3+ts+wasm，主要包含管理后台，编辑器，H5渲染器，PC渲染器，多个组件库以及公用逻辑，主要目的是通过模板创建H5页面支持多个业务，通过拖拉拽域修改json的方式配置页面。\n我的主要贡献是：\n1.主导项目基础架构以及基础功能开发\n2.升级平台构建，从 Vite 3 升至 Vite7，引入 SWC替代Babel，升级rolldown，优化构建时间从150s左右到15s左右(单核服务器)。\n3. 封装基本校验组件，统一组件开发方式与校验入口，解决表单校验冲突、表单校验入口混乱等问题。\n4.优化组件直接依赖管理系统，优化依赖分析算法及效果，引入rust wasm性能提升80%。\n5. 封装前端基础设施优化开发一体化，并提高效优化添加出cli填载等(实测V400k主包Bios FMP保持0.6~0.8s，Android8左右，所有分包步优化，实用缓存注入人，核下载缓存)'
+    }
+  ],
+  educations: [
+    {
+      id: '1',
+      school: '成都理工大学',
+      major: '数字媒体技术',
+      degree: '本科',
+      gpa: '',
+      ranking: '',
+      startDate: '2016-09',
+      endDate: '2020-06',
+      description: '可以列出成绩、荣誉奖项、相关课程等'
+    }
+  ],
+  personalSummary: {
+    content: '• 喜欢研究前端新技术，新思想，喜欢研究前端工程化和自动化。\n• 有代码洁癖，对空行和空格都很注意。追求注释的准确性。\n• 对工作项目积极负责，对于上级的安排严格服从。\n• 善于与人沟通交流，喜欢交流新知识，喜欢学习他人优点，也喜欢分享自己积累知识。\n• 对于自己手下上线的项目会有成就感。'
+  }
+})
+
+// localStorage 工具函数
+const saveToLocalStorage = (data: ResumeData): void => {
+  try {
+    const dataToSave = {
+      ...data,
+      lastModified: data.lastModified.toISOString()
+    }
+    localStorage.setItem(RESUME_STORAGE_KEY, JSON.stringify(dataToSave))
+    console.log('简历数据已保存到本地存储')
+  } catch (error) {
+    console.error('保存简历数据失败:', error)
+    throw new Error('保存失败，请检查浏览器存储权限')
+  }
+}
+
+const loadFromLocalStorage = (): ResumeData | null => {
+  try {
+    const saved = localStorage.getItem(RESUME_STORAGE_KEY)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      // 恢复Date对象
+      parsed.lastModified = new Date(parsed.lastModified)
+      console.log('从本地存储加载简历数据')
+      return parsed
+    }
+  } catch (error) {
+    console.error('加载简历数据失败:', error)
+  }
+  return null
+}
+
+export const useResumeStore = defineStore('resume', () => {
+  // 尝试从localStorage加载数据，如果没有则使用默认数据
+  const savedData = loadFromLocalStorage()
+  const resumeData = ref<ResumeData>(savedData || getDefaultResumeData())
+
+  // 自动保存定时器
+  let autoSaveTimer: NodeJS.Timeout | null = null
+
+  // 手动保存到localStorage
+  const saveToStorage = (): void => {
+    resumeData.value.lastModified = new Date()
+    saveToLocalStorage(resumeData.value)
+  }
+
+  // 从localStorage加载数据
+  const loadFromStorage = (): boolean => {
+    const loaded = loadFromLocalStorage()
+    if (loaded) {
+      resumeData.value = loaded
+      console.log('简历数据已从本地存储加载')
+      return true
+    }
+    return false
+  }
+
+  // 重置为默认数据
+  const resetToDefault = (): void => {
+    resumeData.value = getDefaultResumeData()
+    saveToStorage()
+  }
+
+  // 清除本地存储
+  const clearStorage = (): void => {
+    localStorage.removeItem(RESUME_STORAGE_KEY)
+    console.log('本地存储已清除')
+  }
+
+  // 启动自动保存
+  const startAutoSave = (): void => {
+    if (autoSaveTimer) {
+      clearInterval(autoSaveTimer)
+    }
+    autoSaveTimer = setInterval(() => {
+      saveToStorage()
+      console.log('自动保存完成')
+    }, AUTO_SAVE_INTERVAL)
+  }
+
+  // 停止自动保存
+  const stopAutoSave = (): void => {
+    if (autoSaveTimer) {
+      clearInterval(autoSaveTimer)
+      autoSaveTimer = null
+    }
+  }
+
+  // 更新数据时同时更新最后修改时间
+  const updateLastModified = (): void => {
+    resumeData.value.lastModified = new Date()
+  }
 
   // 更新文件名
   const updateFilename = (filename: string) => {
     resumeData.value.filename = filename
-    resumeData.value.lastModified = new Date()
+    updateLastModified()
   }
 
   // 更新基本信息
   const updateBasicInfo = (info: Partial<BasicInfo>) => {
     Object.assign(resumeData.value.basicInfo, info)
-    resumeData.value.lastModified = new Date()
+    updateLastModified()
   }
 
   // 更新技能
   const updateSkills = (skills: Partial<Skills>) => {
     Object.assign(resumeData.value.skills, skills)
-    resumeData.value.lastModified = new Date()
+    updateLastModified()
   }
 
   // 添加工作经历
@@ -203,7 +299,7 @@ export const useResumeStore = defineStore('resume', () => {
       description: ''
     }
     resumeData.value.workExperiences.push(newWork)
-    resumeData.value.lastModified = new Date()
+    updateLastModified()
     return newWork.id
   }
 
@@ -212,7 +308,7 @@ export const useResumeStore = defineStore('resume', () => {
     const index = resumeData.value.workExperiences.findIndex(w => w.id === id)
     if (index > -1) {
       Object.assign(resumeData.value.workExperiences[index], work)
-      resumeData.value.lastModified = new Date()
+      updateLastModified()
     }
   }
 
@@ -221,7 +317,7 @@ export const useResumeStore = defineStore('resume', () => {
     const index = resumeData.value.workExperiences.findIndex(w => w.id === id)
     if (index > -1) {
       resumeData.value.workExperiences.splice(index, 1)
-      resumeData.value.lastModified = new Date()
+      updateLastModified()
     }
   }
 
@@ -238,7 +334,7 @@ export const useResumeStore = defineStore('resume', () => {
       description: ''
     }
     resumeData.value.projectExperiences.push(newProject)
-    resumeData.value.lastModified = new Date()
+    updateLastModified()
     return newProject.id
   }
 
@@ -247,7 +343,7 @@ export const useResumeStore = defineStore('resume', () => {
     const index = resumeData.value.projectExperiences.findIndex(p => p.id === id)
     if (index > -1) {
       Object.assign(resumeData.value.projectExperiences[index], project)
-      resumeData.value.lastModified = new Date()
+      updateLastModified()
     }
   }
 
@@ -256,7 +352,7 @@ export const useResumeStore = defineStore('resume', () => {
     const index = resumeData.value.projectExperiences.findIndex(p => p.id === id)
     if (index > -1) {
       resumeData.value.projectExperiences.splice(index, 1)
-      resumeData.value.lastModified = new Date()
+      updateLastModified()
     }
   }
 
@@ -274,7 +370,7 @@ export const useResumeStore = defineStore('resume', () => {
       description: ''
     }
     resumeData.value.educations.push(newEducation)
-    resumeData.value.lastModified = new Date()
+    updateLastModified()
     return newEducation.id
   }
 
@@ -283,7 +379,7 @@ export const useResumeStore = defineStore('resume', () => {
     const index = resumeData.value.educations.findIndex(e => e.id === id)
     if (index > -1) {
       Object.assign(resumeData.value.educations[index], education)
-      resumeData.value.lastModified = new Date()
+      updateLastModified()
     }
   }
 
@@ -292,14 +388,14 @@ export const useResumeStore = defineStore('resume', () => {
     const index = resumeData.value.educations.findIndex(e => e.id === id)
     if (index > -1) {
       resumeData.value.educations.splice(index, 1)
-      resumeData.value.lastModified = new Date()
+      updateLastModified()
     }
   }
 
   // 更新个人总结
   const updatePersonalSummary = (content: string) => {
     resumeData.value.personalSummary.content = content
-    resumeData.value.lastModified = new Date()
+    updateLastModified()
   }
 
   // 切换区块展开状态
@@ -317,7 +413,7 @@ export const useResumeStore = defineStore('resume', () => {
       ...section,
       order: index + 1
     }))
-    resumeData.value.lastModified = new Date()
+    updateLastModified()
   }
 
   return {
@@ -336,6 +432,14 @@ export const useResumeStore = defineStore('resume', () => {
     deleteEducation,
     updatePersonalSummary,
     toggleSectionExpanded,
-    updateSectionsOrder
+    updateSectionsOrder,
+    
+    // 存储相关功能
+    saveToStorage,
+    loadFromStorage,
+    resetToDefault,
+    clearStorage,
+    startAutoSave,
+    stopAutoSave
   }
 }) 

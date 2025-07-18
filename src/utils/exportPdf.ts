@@ -18,7 +18,7 @@ const setupChineseFont = async (): Promise<void> => {
     // 配置pdfMake字体 - 包含中文字体和iconfont
     pdfMake.fonts = {
       Roboto: {
-        normal: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-Bold.ttf',
+        normal: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-Light.ttf',
         bold: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-Bold.ttf',
         italics: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-Heavy.ttf',
         // bolditalics: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-Bold.ttf'
@@ -89,13 +89,13 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
       dateText: {
         fontSize: 10,
         color: '#333333',
-        italics: true,
+        // italics: true,
         font: 'Roboto'
       },
       // 联系信息文本
       contactText: {
         fontSize: 10,
-        color: '#333333',
+        color: '#666666',
         font: 'Roboto'
       },
       // 图标样式
@@ -112,7 +112,6 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
       // 列表项（技能、工作描述等）
       listItem: {
         fontSize: 10,
-        bold: true,
         color: '#333333',
         lineHeight: 1.4,
         font: 'Roboto'
@@ -120,7 +119,6 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
       // 正文文本（个人总结等）
       bodyText: {
         fontSize: 10,
-        bold: true,
         color: '#333333',
         lineHeight: 1.4,
         font: 'Roboto'
