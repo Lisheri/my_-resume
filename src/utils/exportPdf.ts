@@ -1,16 +1,14 @@
 import pdfMake from 'pdfmake/build/pdfmake'
 import type { TDocumentDefinitions } from 'pdfmake/interfaces'
 import type { ResumeData } from '../stores/resume'
-
-// 图标映射 - 将iconfont类名映射到Unicode字符
-const ICON_MAP: { [key: string]: string } = {
-  'icon-gengduobeifen25': '\ue717',  // 电话图标
-  'icon-youjian1': '\ue733',        // 邮件图标
-  'icon-weizhi': '\ue810',          // 位置图标
-  'icon-out_link': '\ue6e2',        // 链接图标
-  'icon-tysp_renshu': '\ue6ec',     // 个人图标 (工作状态)
-  'icon-jifen-kaoshirenwu': '\ue839' // 目标图标
-}
+import {
+  generateBasicInfo,
+  generateSkills,
+  generateWorkExperience,
+  generateProjectExperience,
+  generateEducation,
+  generatePersonalSummary
+} from './exportModules'
 
 // 配置字体支持
 const setupChineseFont = async (): Promise<void> => {
@@ -25,7 +23,6 @@ const setupChineseFont = async (): Promise<void> => {
         italics: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-Heavy.ttf',
         // bolditalics: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-Bold.ttf'
         bolditalics: 'https://cdn.jsdelivr.net/npm/@zf-web-font/sourcehansanscn@0.2.0/SourceHanSansCN-ExtraLight.ttf'
-        
       },
       // 添加iconfont字体支持 - 使用TTF格式
       iconfont: {
@@ -44,404 +41,17 @@ const setupChineseFont = async (): Promise<void> => {
   }
 }
 
-// 获取图标字符
-const getIconChar = (iconClass: string): string => {
-  return ICON_MAP[iconClass] || ''
-}
-
-// 创建带图标的文本 - 使用iconfont字体
-const createIconText = (iconClass: string, text: string): any[] => {
-  const iconChar = getIconChar(iconClass)
-  if (iconChar) {
-    return [
-      {
-        text: iconChar,
-        font: 'iconfont',
-        style: 'iconStyle'
-      },
-      {
-        text: ` ${text}`,
-        style: 'contactText'
-      }
-    ]
-  }
-  return [{
-    text: text,
-    style: 'contactText'
-  }]
-}
-
-// 文本处理函数
-const formatText = (text: string): string => {
-  if (!text) return ''
-  return text.replace(/\n/g, ' ').trim()
-}
-
-// 保持换行的文本处理函数（用于个人总结等需要保持格式的内容）
-const formatTextWithLineBreaks = (text: string): string => {
-  if (!text) return ''
-  return text.trim()
-}
-
-// 创建PDF文档定义
+// 创建PDF文档定义 - 重构后的简洁版本
 const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions => {
-  const { basicInfo, sections, skills, workExperiences, projectExperiences, educations, personalSummary } = resumeData
-
   const content: any[] = []
 
-  // ====== 基本信息（Header优化） ======
-  // 姓名
-  content.push({
-    text: formatText(basicInfo.name) || '简历',
-    style: 'header',
-    alignment: 'center',
-    margin: [0, 0, 0, 16]
-  })
-
-  // 联系信息 - 优化布局，放在一行
-  const contactTexts = []
-  if (basicInfo.phone) {
-    contactTexts.push(createIconText('icon-gengduobeifen25', basicInfo.phone))
-  }
-  if (basicInfo.email) {
-    contactTexts.push(createIconText('icon-youjian1', basicInfo.email))
-  }
-  if (basicInfo.location) {
-    contactTexts.push(createIconText('icon-weizhi', formatText(basicInfo.location)))
-  }
-
-  if (contactTexts.length > 0) {
-    // 将联系信息合并为一行，用分隔符分开
-    const combinedContact: any[] = []
-    contactTexts.forEach((contact, index) => {
-      combinedContact.push(...contact)
-      if (index < contactTexts.length - 1) {
-        combinedContact.push({
-          text: '  |  ',
-          style: 'separatorText'
-        })
-      }
-    })
-    
-    content.push({
-      text: combinedContact,
-      alignment: 'center',
-      margin: [0, 0, 0, 8]
-    })
-  }
-
-  // 个人网站
-  if (basicInfo.website) {
-    content.push({
-      text: createIconText('icon-out_link', basicInfo.website),
-      alignment: 'center',
-      margin: [0, 0, 0, 8]
-    })
-  }
-
-  // 工作状态和求职目标 - 优化布局
-  const statusTexts = []
-  if (basicInfo.workStatus) {
-    statusTexts.push(createIconText('icon-tysp_renshu', formatText(basicInfo.workStatus)))
-  }
-  if (basicInfo.jobTarget) {
-    statusTexts.push(createIconText('icon-jifen-kaoshirenwu', formatText(basicInfo.jobTarget)))
-  }
-
-  if (statusTexts.length > 0) {
-    // 将状态信息合并为一行
-    const combinedStatus: any[] = []
-    statusTexts.forEach((status, index) => {
-      combinedStatus.push(...status)
-      if (index < statusTexts.length - 1) {
-        combinedStatus.push({
-          text: '  |  ',
-          style: 'separatorText'
-        })
-      }
-    })
-    
-    content.push({
-      text: combinedStatus,
-      alignment: 'center',
-      margin: [0, 0, 0, 14]
-    })
-  }
-
-  // 分割线
-  content.push({
-    canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 }],
-    margin: [0, 0, 0, 14]
-  })
-
-  // ====== 专业技能 ======
-  const skillsSection = sections.find(s => s.type === 'skills')
-  const hasAnySkills = skills.technical.length > 0 || 
-                      skills.certificates.length > 0 || 
-                      skills.languages.length > 0
-  
-  if (skillsSection?.expanded && hasAnySkills) {
-    content.push({
-      text: '专业技能',
-      style: 'sectionHeader',
-      margin: [0, 0, 0, 8]
-    })
-
-    // 技术技能
-    if (skills.technical.length > 0) {
-      content.push({
-        text: '技术技能',
-        style: 'skillSubHeader',
-        margin: [0, 0, 0, 6]
-      })
-      
-      skills.technical.forEach((skill) => {
-        content.push({
-          text: `• ${formatText(skill)}`,
-          style: 'listItem',
-          margin: [0, 0, 0, 3]
-        })
-      })
-      
-      content.push({ text: '', margin: [0, 0, 0, 8] })
-    }
-
-    // 证书/资质
-    if (skills.certificates.length > 0) {
-      content.push({
-        text: '证书/资质',
-        style: 'skillSubHeader',
-        margin: [0, 0, 0, 6]
-      })
-      
-      skills.certificates.forEach((cert) => {
-        content.push({
-          text: `• ${formatText(cert)}`,
-          style: 'listItem',
-          margin: [0, 0, 0, 3]
-        })
-      })
-      
-      content.push({ text: '', margin: [0, 0, 0, 8] })
-    }
-
-    // 语言能力
-    if (skills.languages.length > 0) {
-      content.push({
-        text: '语言能力',
-        style: 'skillSubHeader',
-        margin: [0, 0, 0, 6]
-      })
-      
-      skills.languages.forEach((lang) => {
-        content.push({
-          text: `• ${formatText(lang)}`,
-          style: 'listItem',
-          margin: [0, 0, 0, 3]
-        })
-      })
-      
-      content.push({ text: '', margin: [0, 0, 0, 8] })
-    }
-    
-    // 添加底部间距
-    content.push({ text: '', margin: [0, 0, 0, 4] })
-  }
-
-  // ====== 工作经历 ======
-  const workSection = sections.find(s => s.type === 'work')
-  if (workSection?.expanded && workExperiences.length > 0) {
-    content.push({
-      text: '工作经历',
-      style: 'sectionHeader',
-      margin: [0, 0, 0, 12]
-    })
-
-    workExperiences.forEach((work, index) => {
-      // 公司名称和时间在同一行
-      content.push({
-        columns: [
-          {
-            text: formatText(work.company),
-            style: 'companyName',
-            width: '*'
-          },
-          {
-            text: `${work.startDate} - ${work.endDate || '至今'}`,
-            style: 'dateText',
-            alignment: 'right',
-            width: 'auto'
-          }
-        ],
-        margin: [0, 0, 0, 2]
-      })
-
-      // 职位、部门、城市等信息
-      const jobDetails = []
-      if (work.position) jobDetails.push(formatText(work.position))
-      if (work.department) jobDetails.push(formatText(work.department))
-      if (work.location) jobDetails.push(formatText(work.location))
-      
-      if (jobDetails.length > 0) {
-        content.push({
-          text: jobDetails.join(' | '),
-          style: 'jobDetails',
-          margin: [0, 0, 0, 6]
-        })
-      }
-
-      // 工作描述
-      if (work.description) {
-        const descriptions = work.description.split('\n').filter(Boolean)
-        descriptions.forEach((desc, i) => {
-          const trimmedDesc = desc.trim()
-          // 如果描述已经以数字开头，保持原格式；否则添加项目符号
-          const listText = /^\d+\./.test(trimmedDesc) ? trimmedDesc : `${i + 1}. ${trimmedDesc}`
-          content.push({
-            text: listText,
-            style: 'listItem',
-            margin: [0, 0, 0, 2]
-          })
-        })
-      }
-
-      // 添加间距（除了最后一项）
-      if (index < workExperiences.length - 1) {
-        content.push({ text: '', margin: [0, 0, 0, 12] })
-      }
-    })
-    
-    // 工作经历整个区域的底部间距
-    content.push({ text: '', margin: [0, 0, 0, 8] })
-  }
-
-  // ====== 项目经历 ======
-  const projectSection = sections.find(s => s.type === 'project')
-  if (projectSection?.expanded && projectExperiences.length > 0) {
-    content.push({
-      text: '项目经历',
-      style: 'sectionHeader',
-      margin: [0, 0, 0, 12]
-    })
-
-    projectExperiences.forEach((project, index) => {
-      // 项目名称和时间在同一行
-      content.push({
-        columns: [
-          {
-            text: formatText(project.name),
-            style: 'companyName',
-            width: '*'
-          },
-          {
-            text: `${project.startDate} - ${project.endDate || '至今'}`,
-            style: 'dateText',
-            alignment: 'right',
-            width: 'auto'
-          }
-        ],
-        margin: [0, 0, 0, 2]
-      })
-      
-      // 角色信息
-      if (project.role) {
-        content.push({
-          text: formatText(project.role),
-          style: 'jobDetails',
-          margin: [0, 0, 0, 6]
-        })
-      }
-
-      // 项目描述
-      if (project.description) {
-        const descriptions = project.description.split('\n').filter(Boolean)
-        descriptions.forEach((desc, i) => {
-          const trimmedDesc = desc.trim()
-          const listText = /^\d+\./.test(trimmedDesc) ? trimmedDesc : `${i + 1}. ${trimmedDesc}`
-          content.push({
-            text: listText,
-            style: 'listItem',
-            margin: [0, 0, 0, 2]
-          })
-        })
-      }
-
-      // 添加间距（除了最后一项）
-      if (index < projectExperiences.length - 1) {
-        content.push({ text: '', margin: [0, 0, 0, 12] })
-      }
-    })
-    
-    // 项目经历整个区域的底部间距
-    content.push({ text: '', margin: [0, 0, 0, 8] })
-  }
-
-  // ====== 教育经历 ======
-  const educationSection = sections.find(s => s.type === 'education')
-  if (educationSection?.expanded && educations.length > 0) {
-    content.push({
-      text: '教育经历',
-      style: 'sectionHeader',
-      margin: [0, 0, 0, 12]
-    })
-
-    educations.forEach((edu, index) => {
-      // 学校名称和时间在同一行
-      content.push({
-        columns: [
-          {
-            text: formatText(edu.school),
-            style: 'companyName',
-            width: '*'
-          },
-          {
-            text: `${edu.startDate} - ${edu.endDate || '至今'}`,
-            style: 'dateText',
-            alignment: 'right',
-            width: 'auto'
-          }
-        ],
-        margin: [0, 0, 0, 2]
-      })
-
-      // 专业和学历
-      const eduDetails = []
-      if (edu.major) eduDetails.push(formatText(edu.major))
-      if (edu.degree) eduDetails.push(formatText(edu.degree))
-      
-      if (eduDetails.length > 0) {
-        content.push({
-          text: eduDetails.join(' | '),
-          style: 'jobDetails',
-          margin: [0, 0, 0, index === educations.length - 1 ? 8 : 12]
-        })
-      }
-    })
-  }
-
-  // ====== 个人总结 ======
-  const summarySection = sections.find(s => s.type === 'summary')
-  if (summarySection?.expanded && personalSummary.content) {
-    content.push({
-      text: '个人总结',
-      style: 'sectionHeader',
-      margin: [0, 0, 0, 8]
-    })
-
-    // 处理个人总结内容，保持换行格式
-    const summaryText = formatTextWithLineBreaks(personalSummary.content)
-    
-    // 按行分割并创建段落
-    const summaryLines = summaryText.split('\n').filter(line => line.trim())
-    
-    summaryLines.forEach((line, index) => {
-      content.push({
-        text: line.trim(),
-        style: 'bodyText',
-        margin: [0, 0, 0, index === summaryLines.length - 1 ? 8 : 4]
-      })
-    })
-  }
+  // 按顺序生成各个模块
+  content.push(...generateBasicInfo(resumeData))
+  content.push(...generateSkills(resumeData))
+  content.push(...generateWorkExperience(resumeData))
+  content.push(...generateProjectExperience(resumeData))
+  content.push(...generateEducation(resumeData))
+  content.push(...generatePersonalSummary(resumeData))
 
   return {
     content,
@@ -553,7 +163,7 @@ export const exportHighQualityPDF = async (resumeData: ResumeData): Promise<void
     const docDefinition = createDocumentDefinition(resumeData)
     console.log('PDF文档定义:', docDefinition)
     
-    const fileName = `${formatText(resumeData.basicInfo.name) || 'resume'}_resume.pdf`
+    const fileName = `${resumeData.basicInfo.name || 'resume'}_resume.pdf`
     
     console.log('正在生成PDF文件...')
     
