@@ -51,14 +51,15 @@ export const generateProjectExperience: ModuleGenerator = (resumeData: ResumeDat
       // 项目描述
       if (project.description) {
         const descriptions = project.description.split('\n').filter(Boolean)
-        descriptions.forEach((desc, i) => {
+        descriptions.forEach((desc) => {
           const trimmedDesc = desc.trim()
-          const listText = /^\d+\./.test(trimmedDesc) ? trimmedDesc : `${i + 1}. ${trimmedDesc}`
-          content.push({
-            text: listText,
-            style: 'listItem',
-            margin: [0, 0, 0, 2]
-          })
+          if (trimmedDesc) {
+            content.push({
+              text: trimmedDesc,
+              style: 'listItem',
+              margin: [0, 0, 0, 2]
+            })
+          }
         })
       }
 

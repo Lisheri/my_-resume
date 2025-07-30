@@ -56,15 +56,15 @@ export const generateWorkExperience: ModuleGenerator = (resumeData: ResumeData):
       // 工作描述
       if (work.description) {
         const descriptions = work.description.split('\n').filter(Boolean)
-        descriptions.forEach((desc, i) => {
+        descriptions.forEach((desc) => {
           const trimmedDesc = desc.trim()
-          // 如果描述已经以数字开头，保持原格式；否则添加项目符号
-          const listText = /^\d+\./.test(trimmedDesc) ? trimmedDesc : `${i + 1}. ${trimmedDesc}`
-          content.push({
-            text: listText,
-            style: 'listItem',
-            margin: [0, 0, 0, 2]
-          })
+          if (trimmedDesc) {
+            content.push({
+              text: trimmedDesc,
+              style: 'listItem',
+              margin: [0, 0, 0, 2]
+            })
+          }
         })
       }
 
