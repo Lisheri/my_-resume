@@ -21,7 +21,8 @@ export default function EducationPreview() {
           <div class="position-info">
             <span class="position">{education.major}</span>
             <span class="degree"> | {education.degree}</span>
-            {education.gpa && <span class="gpa"> | GPA: {education.gpa}</span>}
+            {education.gpa && <span class="gpa"> | GPA/成绩: {education.gpa}</span>}
+            {education.ranking && <span class="ranking"> | 排名/等级: {education.ranking}</span>}
           </div>
           {education.description && (
             <div class="description">{education.description}</div>
