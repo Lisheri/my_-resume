@@ -1,4 +1,4 @@
-import { ElInput, ElButton, ElMessage } from 'element-plus';
+import { ElInput, ElButton, ElMessage, ElLoading } from 'element-plus';
 import { useResumeStore } from '../stores/resume';
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { exportHighQualityPDF } from '../utils/exportPdf';
@@ -56,9 +56,20 @@ export default function ResumeEditor() {
   const handleSave = () => {
     try {
       resumeStore.saveToStorage();
-      ElMessage.success('简历已保存到本地');
+      ElMessage({
+        message: '简历已保存到本地',
+        type: 'success',
+        duration: 2000,
+        showClose: false
+      });
     } catch (error: any) {
-      ElMessage.error(`保存失败: ${error?.message || '未知错误'}`);
+      console.error('保存失败:', error);
+      ElMessage({
+        message: `保存失败: ${error?.message || '未知错误'}`,
+        type: 'error',
+        duration: 3000,
+        showClose: true
+      });
     }
   };
 
@@ -124,31 +135,53 @@ export default function ResumeEditor() {
   };
 
   const exportToPDFDirect = async () => {
-    let loadingMessage: any = null
+    let loadingInstance: any = null
     
     try {
-      // 显示加载提示
-      loadingMessage = ElMessage({
-        message: '正在生成PDF，请稍候...',
-        type: 'info',
-        duration: 0
+      // 显示全局loading
+      loadingInstance = ElLoading.service({
+        lock: true,
+        text: '准备导出PDF...',
+        background: 'rgba(0, 0, 0, 0.7)',
+        spinner: 'el-icon-loading',
+        customClass: 'pdf-export-loading'
       })
 
-      // 导出PDF
-      await exportHighQualityPDF(resumeStore.resumeData)
+      // 创建进度回调函数
+      const updateProgress = (message: string) => {
+        if (loadingInstance) {
+          loadingInstance.setText(message)
+        }
+      }
+
+      // 导出PDF，传入进度回调
+      await exportHighQualityPDF(resumeStore.resumeData, updateProgress)
       
-      // 成功后关闭加载提示并显示成功消息
-      loadingMessage.close()
-      ElMessage.success('PDF导出成功！')
+      // 成功后关闭loading并显示成功消息
+      if (loadingInstance) {
+        loadingInstance.close()
+      }
+      
+      ElMessage({
+        message: 'PDF导出成功！文件已开始下载',
+        type: 'success',
+        duration: 4000,
+        showClose: true
+      })
       
     } catch (error: any) {
-      // 失败时关闭加载提示并显示错误消息
-      if (loadingMessage) {
-        loadingMessage.close()
+      // 失败时关闭loading并显示错误消息
+      if (loadingInstance) {
+        loadingInstance.close()
       }
       
       console.error('PDF导出失败:', error)
-      ElMessage.error(`PDF导出失败: ${error?.message || '未知错误'}`)
+      ElMessage({
+        message: `PDF导出失败: ${error?.message || '网络或字体加载错误，请重试'}`,
+        type: 'error',
+        duration: 6000,
+        showClose: true
+      })
     }
   }
 

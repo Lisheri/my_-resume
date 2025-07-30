@@ -147,25 +147,50 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
   }
 }
 
-// 高质量PDF导出
-export const exportHighQualityPDF = async (resumeData: ResumeData): Promise<void> => {
+// 进度回调类型定义
+export type ProgressCallback = (message: string) => void
+
+// 高质量PDF导出 - 支持进度回调
+export const exportHighQualityPDF = async (
+  resumeData: ResumeData, 
+  onProgress?: ProgressCallback
+): Promise<void> => {
   try {
     console.log('开始生成PDF...')
     console.log('简历数据:', resumeData)
     
-    // 设置中文字体和iconfont
+    // 步骤1: 设置字体
+    onProgress?.('正在加载字体文件...')
     await setupChineseFont()
     
-    // 创建文档定义
+    // 步骤2: 构建文档
+    onProgress?.('正在构建PDF文档结构...')
     const docDefinition = createDocumentDefinition(resumeData)
     console.log('PDF文档定义:', docDefinition)
     
+    // 步骤3: 生成文件名
     const fileName = `${resumeData.basicInfo.name || 'resume'}_resume.pdf`
     
+    // 步骤4: 生成PDF
+    onProgress?.('正在渲染PDF文件...')
     console.log('正在生成PDF文件...')
     
-    // 生成并下载PDF
-    pdfMake.createPdf(docDefinition).download(fileName)
+    // 使用Promise包装PDF生成过程
+    await new Promise<void>((resolve, reject) => {
+      try {
+        const pdfDocGenerator = pdfMake.createPdf(docDefinition)
+        
+        // 模拟渲染进度
+        setTimeout(() => {
+          onProgress?.('正在下载PDF文件...')
+          pdfDocGenerator.download(fileName)
+          resolve()
+        }, 500) // 给用户一些视觉反馈时间
+        
+      } catch (error) {
+        reject(error)
+      }
+    })
     
     console.log('PDF导出成功! 文件名:', fileName)
     

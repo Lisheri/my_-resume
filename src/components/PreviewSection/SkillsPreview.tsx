@@ -1,16 +1,17 @@
-import { useResumeStore } from '../../stores/resume'
+import { useResumeStore } from '../../stores/resume';
 
 export default function SkillsPreview() {
-  const resumeStore = useResumeStore()
-  const { skills, sections } = resumeStore.resumeData
-  
-  const skillsSection = sections.find(s => s.type === 'skills')
-  const hasAnySkills = skills.technical.length > 0 || 
-                      skills.certificates.length > 0 || 
-                      skills.languages.length > 0
-  const shouldShow = skillsSection?.expanded && hasAnySkills
+  const resumeStore = useResumeStore();
+  const { skills, sections } = resumeStore.resumeData;
 
-  if (!shouldShow) return null
+  const skillsSection = sections.find((s) => s.type === 'skills');
+  const hasAnySkills =
+    skills.technical.length > 0 ||
+    skills.certificates.length > 0 ||
+    skills.languages.length > 0;
+  const shouldShow = skillsSection?.expanded && hasAnySkills;
+
+  if (!shouldShow) return null;
 
   return (
     <div class="preview-section">
@@ -25,7 +26,7 @@ export default function SkillsPreview() {
             ))}
           </div>
         )}
-        
+
         {/* 证书/资质 */}
         {skills.certificates.length > 0 && (
           <div class="skill-category">
@@ -35,7 +36,7 @@ export default function SkillsPreview() {
             ))}
           </div>
         )}
-        
+
         {/* 语言能力 */}
         {skills.languages.length > 0 && (
           <div class="skill-category">
@@ -47,5 +48,5 @@ export default function SkillsPreview() {
         )}
       </div>
     </div>
-  )
-} 
+  );
+}
