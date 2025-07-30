@@ -1,5 +1,5 @@
 import type { ResumeData } from '../../stores/resume'
-import { formatText, type ModuleGenerator } from './types'
+import { formatText, createSeparatorLine, type ModuleGenerator } from './types'
 
 /**
  * 生成教育经历模块
@@ -14,8 +14,11 @@ export const generateEducation: ModuleGenerator = (resumeData: ResumeData): any[
     content.push({
       text: '教育经历',
       style: 'sectionHeader',
-      margin: [0, 0, 0, 12]
+      margin: [0, 0, 0, 4]
     })
+
+    // 添加标题下的分割线
+    content.push(createSeparatorLine([0, 0, 0, 8]))
 
     educations.forEach((edu, index) => {
       // 学校名称和时间在同一行

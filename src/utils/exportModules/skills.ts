@@ -1,5 +1,5 @@
 import type { ResumeData } from '../../stores/resume'
-import { formatText, type ModuleGenerator } from './types'
+import { formatText, createSeparatorLine, type ModuleGenerator } from './types'
 
 /**
  * 生成专业技能模块
@@ -18,8 +18,11 @@ export const generateSkills: ModuleGenerator = (resumeData: ResumeData): any[] =
     content.push({
       text: '专业技能',
       style: 'sectionHeader',
-      margin: [0, 0, 0, 8]
+      margin: [0, 0, 0, 4]
     })
+
+    // 添加标题下的分割线
+    content.push(createSeparatorLine([0, 0, 0, 8]))
 
     // 技术技能
     if (skills.technical.length > 0) {
@@ -77,9 +80,6 @@ export const generateSkills: ModuleGenerator = (resumeData: ResumeData): any[] =
       
       content.push({ text: '', margin: [0, 0, 0, 8] })
     }
-    
-    // 添加底部间距
-    content.push({ text: '', margin: [0, 0, 0, 4] })
   }
 
   return content

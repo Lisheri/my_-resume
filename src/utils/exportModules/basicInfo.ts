@@ -1,5 +1,5 @@
 import type { ResumeData } from '../../stores/resume'
-import { formatText, createIconText, type ModuleGenerator } from './types'
+import { formatText, createIconText, createSeparatorLine, type ModuleGenerator } from './types'
 
 /**
  * 生成基本信息模块
@@ -88,10 +88,7 @@ export const generateBasicInfo: ModuleGenerator = (resumeData: ResumeData): any[
   }
 
   // 分割线
-  content.push({
-    canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 }],
-    margin: [0, 0, 0, 14]
-  })
+  // content.push(createSeparatorLine([0, 0, 0, 14]))
 
   return content
 } 

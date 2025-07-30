@@ -8,4 +8,4 @@ export { generatePersonalSummary } from './personalSummary'
 
 // 导出类型和工具函数
 export type { ModuleGenerator } from './types'
-export { formatText, formatTextWithLineBreaks, createIconText, getIconChar, ICON_MAP } from './types' 
+export { formatText, formatTextWithLineBreaks, createIconText, getIconChar, ICON_MAP, createSeparatorLine } from './types' 

@@ -68,7 +68,6 @@ const createDocumentDefinition = (resumeData: ResumeData): TDocumentDefinitions 
         fontSize: 10,
         bold: true,
         color: '#333333',
-        decoration: 'underline',
         font: 'Roboto'
       },
       // 子标题（公司职位、项目名称等）

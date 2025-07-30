@@ -9,66 +9,66 @@ export interface FontConfig {
 
 // 可用字体配置 - 基于用户实际字体文件
 export const AVAILABLE_FONTS: FontConfig[] = [
-  {
-    name: 'XinyiGuanHei',
-    displayName: '字体圈欣意冠黑体',
-    regular: '/fonts/字体圈欣意冠黑体.ttf'
-  },
-  {
-    name: 'YouSheBiaoTiHei',
-    displayName: '优设标题黑',
-    regular: '/fonts/优设标题黑.ttf'
-  },
-  {
-    name: 'YixinYuzhouHei',
-    displayName: '壹心宇宙黑',
-    regular: '/fonts/壹心宇宙黑.ttf'
-  },
-  {
-    name: 'YixinQingHei',
-    displayName: '壹心晴黑体',
-    regular: '/fonts/壹心晴黑体.ttf'
-  },
-  {
-    name: 'YixinChongFengHao',
-    displayName: '壹心冲锋号',
-    regular: '/fonts/壹心冲锋号.ttf'
-  },
-  {
-    name: 'HanyiYakuHei',
-    displayName: '汉仪雅酷黑',
-    regular: '/fonts/汉仪雅酷黑.ttf'
-  },
-  {
-    name: 'FangzhengLantingCuHei',
-    displayName: '方正兰亭粗黑简体',
-    regular: '/fonts/方正兰亭粗黑简体.TTF'
-  },
-  {
-    name: 'EryaXinDaHei',
-    displayName: '尔雅新大黑',
-    regular: '/fonts/尔雅新大黑.ttf'
-  },
-  {
-    name: 'EryaJingsiHei',
-    displayName: '尔雅静思黑',
-    regular: '/fonts/尔雅静思黑.ttf'
-  },
-  {
-    name: 'CangjiGaoDeGuoMiaoHei',
-    displayName: '仓迹高德国妙黑',
-    regular: '/fonts/仓迹高德国妙黑.otf'
-  },
-  {
-    name: 'FZLTTHJW',
-    displayName: '方正兰亭特黑简体',
-    regular: '/fonts/FZLTTHJW.TTF'
-  },
-  {
-    name: 'FZLTCHJW',
-    displayName: '方正兰亭超黑简体',
-    regular: '/fonts/FZLTCHJW.TTF'
-  },
+  // {
+  //   name: 'XinyiGuanHei',
+  //   displayName: '字体圈欣意冠黑体',
+  //   regular: '/fonts/字体圈欣意冠黑体.ttf'
+  // },
+  // {
+  //   name: 'YouSheBiaoTiHei',
+  //   displayName: '优设标题黑',
+  //   regular: '/fonts/优设标题黑.ttf'
+  // },
+  // {
+  //   name: 'YixinYuzhouHei',
+  //   displayName: '壹心宇宙黑',
+  //   regular: '/fonts/壹心宇宙黑.ttf'
+  // },
+  // {
+  //   name: 'YixinQingHei',
+  //   displayName: '壹心晴黑体',
+  //   regular: '/fonts/壹心晴黑体.ttf'
+  // },
+  // {
+  //   name: 'YixinChongFengHao',
+  //   displayName: '壹心冲锋号',
+  //   regular: '/fonts/壹心冲锋号.ttf'
+  // },
+  // {
+  //   name: 'HanyiYakuHei',
+  //   displayName: '汉仪雅酷黑',
+  //   regular: '/fonts/汉仪雅酷黑.ttf'
+  // },
+  // {
+  //   name: 'FangzhengLantingCuHei',
+  //   displayName: '方正兰亭粗黑简体',
+  //   regular: '/fonts/方正兰亭粗黑简体.TTF'
+  // },
+  // {
+  //   name: 'EryaXinDaHei',
+  //   displayName: '尔雅新大黑',
+  //   regular: '/fonts/尔雅新大黑.ttf'
+  // },
+  // {
+  //   name: 'EryaJingsiHei',
+  //   displayName: '尔雅静思黑',
+  //   regular: '/fonts/尔雅静思黑.ttf'
+  // },
+  // {
+  //   name: 'CangjiGaoDeGuoMiaoHei',
+  //   displayName: '仓迹高德国妙黑',
+  //   regular: '/fonts/仓迹高德国妙黑.otf'
+  // },
+  // {
+  //   name: 'FZLTTHJW',
+  //   displayName: '方正兰亭特黑简体',
+  //   regular: '/fonts/FZLTTHJW.TTF'
+  // },
+  // {
+  //   name: 'FZLTCHJW',
+  //   displayName: '方正兰亭超黑简体',
+  //   regular: '/fonts/FZLTCHJW.TTF'
+  // },
   {
     name: "NotoSansHans",
     displayName: "思源黑体",

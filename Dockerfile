@@ -38,8 +38,8 @@ RUN rm -rf /etc/nginx/conf.d/*
 # 创建nginx配置文件
 COPY <<EOF /etc/nginx/conf.d/default.conf
 server {
-    listen 80;
-    listen [::]:80;
+    listen 3333;
+    listen [::]:3333;
     server_name _;
     root /usr/share/nginx/html;
     index index.html;
@@ -126,10 +126,10 @@ RUN mkdir -p /var/cache/nginx && \
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost/health || exit 1
+    CMD curl -f http://localhost:3333/health || exit 1
 
 # 暴露端口
-EXPOSE 80
+EXPOSE 3333
 
 # 启动nginx
 CMD ["nginx", "-g", "daemon off;"] 

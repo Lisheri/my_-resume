@@ -49,5 +49,13 @@ export const formatTextWithLineBreaks = (text: string): string => {
   return text.trim()
 }
 
+// 创建分割线
+export const createSeparatorLine = (margin: [number, number, number, number] = [0, 8, 0, 14]): any => {
+  return {
+    canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 2, lineColor: '#333333' }],
+    margin
+  }
+}
+
 // 模块生成器类型定义
 export type ModuleGenerator = (resumeData: ResumeData) => any[] 

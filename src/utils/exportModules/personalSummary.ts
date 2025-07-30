@@ -1,5 +1,5 @@
 import type { ResumeData } from '../../stores/resume'
-import { formatTextWithLineBreaks, type ModuleGenerator } from './types'
+import { formatTextWithLineBreaks, createSeparatorLine, type ModuleGenerator } from './types'
 
 /**
  * 生成个人总结模块
@@ -14,8 +14,11 @@ export const generatePersonalSummary: ModuleGenerator = (resumeData: ResumeData)
     content.push({
       text: '个人总结',
       style: 'sectionHeader',
-      margin: [0, 0, 0, 8]
+      margin: [0, 0, 0, 4]
     })
+
+    // 添加标题下的分割线
+    content.push(createSeparatorLine([0, 0, 0, 8]))
 
     // 处理个人总结内容，保持换行格式
     const summaryText = formatTextWithLineBreaks(personalSummary.content)
