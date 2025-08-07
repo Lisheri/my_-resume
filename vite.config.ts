@@ -32,8 +32,21 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
+    port: 3002,
     open: true,
+    // 允许跨域访问
+    cors: true,
+    // 允许所有主机访问（适用于开发环境）
+    host: '0.0.0.0',
+    // 配置代理（如果需要代理后端API）
+    proxy: {
+      // 示例：将 /api 请求代理到后端服务
+      // '/api': {
+      //   target: 'http://localhost:8080',
+      //   changeOrigin: true,
+      //   rewrite: (path) => path.replace(/^\/api/, '')
+      // }
+    }
   },
   // 包含字体文件作为静态资源
   assetsInclude: ['**/*.ttf', '**/*.otf', '**/*.woff', '**/*.woff2'],

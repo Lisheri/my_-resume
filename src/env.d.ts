@@ -19,6 +19,13 @@ declare global {
     interface ElementClass extends ComponentRenderProxy {}
     interface IntrinsicElements extends IntrinsicElementAttributes {}
   }
+
+  // 无界(wujie)微前端相关类型声明
+  interface Window {
+    __POWERED_BY_WUJIE__?: boolean;
+    __WUJIE_MOUNT?: () => void;
+    __WUJIE_UNMOUNT?: () => void;
+  }
 }
 
 import type { VNode } from 'vue'
